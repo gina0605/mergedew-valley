@@ -1,16 +1,37 @@
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
 
 export interface CanvasProps {
   title: string;
   data: any;
-  onUpload: (filename: string, data: Uint8ClampedArray) => void;
+  zoom: number;
+  onUpload: (filename: string, data: ImageData) => void;
 }
 
-export const Canvas = ({ title, data, onUpload }: CanvasProps) => {
+export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
   const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
+
+  const setupCanvas = (w: number, h: number, z: number) => {
+    const cnvs = canvasRef.current as HTMLCanvasElement;
+    const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
+    ctx.canvas.width = w;
+    ctx.canvas.height = h;
+    ctx.canvas.style.width = `${w * z}px`;
+    ctx.canvas.style.height = `${h * z}px`;
+    return ctx;
+  };
+
+  useEffect(() => {
+    console.log(width, height, zoom);
+    if (data !== null) {
+      const ctx = setupCanvas(width, height, zoom);
+      ctx.putImageData(data, 0, 0);
+    }
+  }, [width, height, zoom]);
 
   return (
     <div className="flex flex-col">
@@ -43,15 +64,14 @@ export const Canvas = ({ title, data, onUpload }: CanvasProps) => {
                     ? file
                     : (await unpackToContent(file)).content
                 );
-                const cnvs = canvasRef.current as HTMLCanvasElement;
-                const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
                 img.addEventListener("load", () => {
-                  ctx.canvas.width = img.width;
-                  ctx.canvas.height = img.height;
+                  const ctx = setupCanvas(img.width, img.height, zoom);
                   ctx.drawImage(img, 0, 0);
+                  setWidth(img.width);
+                  setHeight(img.height);
                   onUpload(
                     file.name,
-                    ctx.getImageData(0, 0, img.width, img.height).data
+                    ctx.getImageData(0, 0, img.width, img.height)
                   );
                 });
               }}

@@ -1,6 +1,11 @@
 import Image from "next/image";
 
-export const Settings = () => (
+export interface SettingsProps {
+  zoom: number;
+  setZoom: (x: number) => void;
+}
+
+export const Settings = ({ zoom, setZoom }: SettingsProps) => (
   <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-2">
     <div className="flex space-x-4 items-center">
       <div className="w-24">
@@ -11,12 +16,20 @@ export const Settings = () => (
       </div>
       <div className="flex space-x-2 items-center">
         <p className="align-middle h-6 leading-6 font-pretendard">확대</p>
-        <input type="range" min="1" max="20" />
+        <input
+          type="range"
+          min="1"
+          max="20"
+          value={zoom}
+          onChange={(e) => setZoom(parseInt(e.target.value))}
+        />
         <input
           type="number"
           min="1"
           max="20"
-          className="border border-slate-300"
+          className="border border-slate-300 px-1"
+          value={zoom}
+          onChange={(e) => setZoom(parseInt(e.target.value))}
         />
       </div>
     </div>
