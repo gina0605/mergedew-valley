@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
 import { useState } from "react";
+import { Button } from "./Button";
 
 export const Body = () => {
   const [mergeName, setMergeName] = useState("");
@@ -11,15 +11,9 @@ export const Body = () => {
     <div className="flex flex-col items-center space-y-2">
       <Settings />
       <div className="flex space-x-4">
-        <button className="bg-green-100 rounded-lg p-2 border border-emerald-500">
-          <p className="font-omyu text-xl leading-none">이어서 병합</p>
-        </button>
-        <button className="bg-green-100 rounded-lg p-2 border border-emerald-500">
-          <p className="font-omyu text-xl leading-none">png 다운로드</p>
-        </button>
-        <button className="bg-green-100 rounded-lg p-2 border border-emerald-500">
-          <p className="font-omyu text-xl leading-none">xnb 다운로드</p>
-        </button>
+        <Button text="이어서 병합" />
+        <Button text="png 다운로드" />
+        <Button text="xnb 다운로드" />
       </div>
       <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2">
         <Canvas
