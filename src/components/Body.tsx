@@ -5,7 +5,11 @@ import { Button } from "./Button";
 
 export const Body = () => {
   const [mergeName, setMergeName] = useState("");
+  const [mergeData, setMergeData] = useState<Uint8ClampedArray | null>(null);
   const [originalName, setOriginalName] = useState("");
+  const [originalData, setOriginalData] = useState<Uint8ClampedArray | null>(
+    null
+  );
 
   return (
     <div className="flex flex-col items-center space-y-2">
@@ -18,18 +22,18 @@ export const Body = () => {
       <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2">
         <Canvas
           title={`병합용 파일 ${mergeName}`}
-          img={null}
-          onUpload={(img) => {
-            console.log(img);
-            setMergeName(img.name);
+          data={mergeData}
+          onUpload={(filename, data) => {
+            setMergeName(filename);
+            setMergeData(data);
           }}
         />
         <Canvas
           title={`원본 파일 ${originalName}`}
-          img={null}
-          onUpload={(img) => {
-            console.log(img);
-            setOriginalName(img.name);
+          data={originalData}
+          onUpload={(filename, data) => {
+            setOriginalName(filename);
+            setOriginalData(data);
           }}
         />
       </div>
