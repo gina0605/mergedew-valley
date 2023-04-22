@@ -19,7 +19,7 @@ export const Body = () => {
         <Button text="png 다운로드" />
         <Button text="xnb 다운로드" />
       </div>
-      <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2">
+      <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2 pb-8">
         <Canvas
           title={`병합용 파일 ${mergeName}`}
           data={mergeData}
