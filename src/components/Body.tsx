@@ -16,7 +16,7 @@ export const Body = () => (
         <p className="font-omyu text-xl leading-none">xnb 다운로드</p>
       </button>
     </div>
-    <div className="flex space-x-6 pt-2">
+    <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2">
       <Canvas title="병합용 파일" />
       <Canvas title="원본 파일" />
     </div>

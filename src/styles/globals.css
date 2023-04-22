@@ -29,3 +29,29 @@ select {
 img {
   image-rendering: pixelated;
 }
+
+.canvas-title {
+  font-family: 'Pretendard-Regular';
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 90vw;
+}
+
+.canvas {
+  border-width: 2px;
+  border-color: black;
+  width: 90vw;
+  height: 90vw;
+}
+
+@media (min-width: 768px) {
+  .canvas-title {
+    width: 24rem;
+  }
+
+  .canvas {
+    width: 24rem;
+    height: 24rem;
+  }
+}
