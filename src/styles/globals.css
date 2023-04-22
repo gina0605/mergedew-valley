@@ -30,6 +30,10 @@ img {
   image-rendering: pixelated;
 }
 
+canvas {
+  image-rendering: pixelated;
+}
+
 .canvas-title {
   font-family: 'Pretendard-Regular';
   overflow: hidden;

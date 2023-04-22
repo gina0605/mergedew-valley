@@ -810,6 +810,11 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
+xnb@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/xnb/-/xnb-1.2.0.tgz#195701561ab5792f2088a7b934699ea1ebfeeaa6"
+  integrity sha512-RRQlkIPJTM9bajqa3tjSsZRrYpg3uOGuI5NNsj+zym0UFUOAB1C42mE4GVbPPS1kcy9eP4LUZmilTSC29+VEyg==
+
 yaml@^1.10.2:
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"

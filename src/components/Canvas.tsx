@@ -1,5 +1,6 @@
-import { default as NextImage } from "next/image";
 import { useId, useRef } from "react";
+import { default as NextImage } from "next/image";
+import { unpackToContent } from "xnb";
 
 export interface CanvasProps {
   title: string;
@@ -33,11 +34,15 @@ export const Canvas = ({ title, data, onUpload }: CanvasProps) => {
               name="merge-image"
               accept="image/png,.xnb"
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 if (e.target.files?.length !== 1) return;
                 const file = e.target.files[0];
                 const img = new Image();
-                img.src = URL.createObjectURL(file);
+                img.src = URL.createObjectURL(
+                  file.type === "image/png"
+                    ? file
+                    : (await unpackToContent(file)).content
+                );
                 const cnvs = canvasRef.current as HTMLCanvasElement;
                 const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
                 img.addEventListener("load", () => {
