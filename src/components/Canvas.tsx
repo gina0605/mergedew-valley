@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState, MouseEvent, Touch } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  MouseEvent,
+  Touch,
+  ChangeEvent,
+} from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
 
@@ -99,18 +107,9 @@ export const Canvas = ({
     ];
   };
 
-  const onMouseDown = (e: MouseEvent) => {
-    if (mode !== "drag") return;
-    setMousePos(getCoord(e));
-  };
-
   const onMouseUp = (e: MouseEvent) => {
     if (mode != "drag" || mousePos === null) return;
     onSelect(mousePos, getCoord(e));
-    setMousePos(null);
-  };
-
-  const onMouseLeave = (e: MouseEvent) => {
     setMousePos(null);
   };
 
@@ -122,6 +121,19 @@ export const Canvas = ({
       onSelect(mousePos, getCoord(e));
       setMousePos(null);
     }
+  };
+
+  const onImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length !== 1 || !canvasRef.current) return;
+    const file = e.target.files[0];
+    const img = new Image();
+    img.src = URL.createObjectURL(
+      file.type === "image/png" ? file : (await unpackToContent(file)).content
+    );
+    img.addEventListener("load", () => {
+      const ctx = drawImage(canvasRef.current as HTMLCanvasElement, img);
+      onUpload(file.name, ctx.getImageData(0, 0, img.width, img.height));
+    });
   };
 
   return (
@@ -161,26 +173,7 @@ export const Canvas = ({
               name="merge-image"
               accept="image/png,.xnb"
               className="hidden"
-              onChange={async (e) => {
-                if (e.target.files?.length !== 1 || !canvasRef.current) return;
-                const file = e.target.files[0];
-                const img = new Image();
-                img.src = URL.createObjectURL(
-                  file.type === "image/png"
-                    ? file
-                    : (await unpackToContent(file)).content
-                );
-                img.addEventListener("load", () => {
-                  const ctx = drawImage(
-                    canvasRef.current as HTMLCanvasElement,
-                    img
-                  );
-                  onUpload(
-                    file.name,
-                    ctx.getImageData(0, 0, img.width, img.height)
-                  );
-                });
-              }}
+              onChange={onImageUpload}
             />
           </>
         )}
@@ -190,9 +183,11 @@ export const Canvas = ({
         />
         <canvas
           ref={canvasRef}
-          onMouseDown={onMouseDown}
+          onMouseDown={
+            mode === "drag" ? (e) => setMousePos(getCoord(e)) : undefined
+          }
           onMouseUp={onMouseUp}
-          onMouseLeave={onMouseLeave}
+          onMouseLeave={() => setMousePos(null)}
           onClick={onTouch}
           className="relative z-20"
         />
