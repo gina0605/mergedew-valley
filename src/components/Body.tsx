@@ -1,12 +1,13 @@
 import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { array2d } from "@/utils";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
   const [mode, setMode] = useState("drag");
+  const [guide, setGuide] = useState<File | null>(null);
   const [mergeName, setMergeName] = useState("");
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
@@ -18,7 +19,13 @@ export const Body = () => {
 
   return (
     <div className="flex flex-col items-center space-y-2">
-      <Settings zoom={zoom} mode={mode} setZoom={setZoom} setMode={setMode} />
+      <Settings
+        zoom={zoom}
+        mode={mode}
+        setGuide={setGuide}
+        setZoom={setZoom}
+        setMode={setMode}
+      />
       <div className="flex space-x-4">
         <Button text="이어서 병합" />
         <Button text="png 다운로드" />
@@ -30,6 +37,7 @@ export const Body = () => {
           data={mergeData}
           zoom={zoom}
           mode={mode}
+          guide={guide}
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);
@@ -42,6 +50,7 @@ export const Body = () => {
           data={originalData}
           zoom={zoom}
           mode={mode}
+          guide={null}
           onUpload={(filename, data) => {
             setOriginalName(filename);
             setOriginalData(data);

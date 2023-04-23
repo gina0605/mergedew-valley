@@ -5,9 +5,16 @@ export interface SettingsProps {
   mode: string;
   setZoom: (x: number) => void;
   setMode: (x: string) => void;
+  setGuide: (x: File) => void;
 }
 
-export const Settings = ({ zoom, mode, setZoom, setMode }: SettingsProps) => (
+export const Settings = ({
+  zoom,
+  mode,
+  setZoom,
+  setMode,
+  setGuide,
+}: SettingsProps) => (
   <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-2">
     <div className="flex space-x-4 items-center">
       <div className="w-24">
@@ -61,6 +68,9 @@ export const Settings = ({ zoom, mode, setZoom, setMode }: SettingsProps) => (
       <input
         type="file"
         className="w-48 md:w-96 font-pretendard text-sm truncate"
+        onChange={(e) => {
+          if (e.target.files?.length === 1) setGuide(e.target.files[0]);
+        }}
       />
     </div>
   </div>

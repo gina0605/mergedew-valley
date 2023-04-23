@@ -1,20 +1,13 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  MouseEvent,
-  TouchEvent,
-  Touch,
-} from "react";
+import { useEffect, useId, useRef, useState, MouseEvent, Touch } from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
 
 export interface CanvasProps {
   title: string;
-  data: any;
+  data: ImageData | null;
   zoom: number;
   mode: string;
+  guide: File | null;
   onUpload: (filename: string, data: ImageData) => void;
   onSelect: (x1: number, y1: number, x2: number, y2: number) => void;
 }
@@ -24,11 +17,13 @@ export const Canvas = ({
   data,
   zoom,
   mode,
+  guide,
   onUpload,
   onSelect,
 }: CanvasProps) => {
   const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const guideRef = useRef<HTMLCanvasElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -55,6 +50,10 @@ export const Canvas = ({
         (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
       const ctx = setupCanvas(width, height, zoom);
       setPrevZoom(zoom);
+      const guideCnvs = guideRef.current as HTMLCanvasElement;
+      const guideCtx = guideCnvs.getContext("2d") as CanvasRenderingContext2D;
+      guideCtx.canvas.style.width = `${guideCtx.canvas.width * zoom}px`;
+      guideCtx.canvas.style.height = `${guideCtx.canvas.height * zoom}px`;
       ctx.putImageData(data, 0, 0);
       const xScroll = Math.max(
         0,
@@ -73,6 +72,21 @@ export const Canvas = ({
       scroller.scrollTo(xScroll, yScroll);
     }
   }, [width, height, zoom]);
+
+  useEffect(() => {
+    if (!guide) return;
+    const img = new Image();
+    img.src = URL.createObjectURL(guide);
+    img.addEventListener("load", () => {
+      const cnvs = guideRef.current as HTMLCanvasElement;
+      const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
+      ctx.canvas.width = img.width;
+      ctx.canvas.height = img.height;
+      ctx.canvas.style.width = `${img.width * zoom}px`;
+      ctx.canvas.style.height = `${img.height * zoom}px`;
+      ctx.drawImage(img, 0, 0);
+    });
+  }, [guide]);
 
   const getCoord = (e: MouseEvent | Touch) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
@@ -121,7 +135,7 @@ export const Canvas = ({
       <p className="canvas-title">{title}</p>
       <div
         ref={scrollerRef}
-        className={`canvas ${
+        className={`canvas relative ${
           data === null ? "overflow-hidden" : "overflow-scroll"
         }`}
       >
@@ -166,12 +180,14 @@ export const Canvas = ({
             />
           </>
         )}
+        <canvas ref={guideRef} className="absolute z-0" />
         <canvas
           ref={canvasRef}
           onMouseDown={onMouseDown}
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseLeave}
           onClick={onTouch}
+          className="relative z-20"
         />
       </div>
     </div>
