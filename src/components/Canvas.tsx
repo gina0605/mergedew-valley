@@ -45,33 +45,35 @@ export const Canvas = ({
     return ctx;
   };
 
+  const zoomScroll = () => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const xCenter = (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
+    const yCenter = (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
+    const xScroll = Math.max(
+      0,
+      Math.min(
+        xCenter * zoom - scroller.clientWidth / 2,
+        scroller.scrollWidth - scroller.clientWidth
+      )
+    );
+    const yScroll = Math.max(
+      0,
+      Math.min(
+        yCenter * zoom - scroller.clientHeight / 2,
+        scroller.scrollHeight - scroller.clientHeight
+      )
+    );
+    scroller.scrollTo(xScroll, yScroll);
+  };
+
   useEffect(() => {
     if (!canvasRef.current || !guideRef.current) return;
     if (data !== null) {
       updateCanvasZoom(canvasRef.current);
       updateCanvasZoom(guideRef.current);
       setPrevZoom(zoom);
-
-      const scroller = scrollerRef.current as HTMLDivElement;
-      const xCenter =
-        (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
-      const yCenter =
-        (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
-      const xScroll = Math.max(
-        0,
-        Math.min(
-          xCenter * zoom - scroller.clientWidth / 2,
-          scroller.scrollWidth - scroller.clientWidth
-        )
-      );
-      const yScroll = Math.max(
-        0,
-        Math.min(
-          yCenter * zoom - scroller.clientHeight / 2,
-          scroller.scrollHeight - scroller.clientHeight
-        )
-      );
-      scroller.scrollTo(xScroll, yScroll);
+      zoomScroll();
     }
   }, [zoom]);
 
