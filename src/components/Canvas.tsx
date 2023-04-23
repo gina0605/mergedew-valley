@@ -12,8 +12,10 @@ export interface CanvasProps {
 export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
   const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [width, setWidth] = useState<number>(0);
-  const [height, setHeight] = useState<number>(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [prevZoom, setPrevZoom] = useState(1);
 
   const setupCanvas = (w: number, h: number, z: number) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
@@ -28,15 +30,36 @@ export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
   useEffect(() => {
     console.log(width, height, zoom);
     if (data !== null) {
+      const scroller = scrollerRef.current as HTMLDivElement;
+      const xCenter =
+        (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
+      const yCenter =
+        (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
       const ctx = setupCanvas(width, height, zoom);
+      setPrevZoom(zoom);
       ctx.putImageData(data, 0, 0);
+      const xScroll = Math.max(
+        0,
+        Math.min(
+          xCenter * zoom - scroller.clientWidth / 2,
+          scroller.scrollWidth - scroller.clientWidth
+        )
+      );
+      const yScroll = Math.max(
+        0,
+        Math.min(
+          yCenter * zoom - scroller.clientHeight / 2,
+          scroller.scrollHeight - scroller.clientHeight
+        )
+      );
+      scroller.scrollTo(xScroll, yScroll);
     }
   }, [width, height, zoom]);
 
   return (
     <div className="flex flex-col">
       <p className="canvas-title">{title}</p>
-      <div className="canvas overflow-scroll">
+      <div ref={scrollerRef} className="canvas overflow-scroll">
         {data === null && (
           <>
             <label htmlFor={inputId}>
