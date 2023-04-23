@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  MouseEvent,
+  TouchEvent,
+  Touch,
+} from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
 
@@ -6,16 +14,27 @@ export interface CanvasProps {
   title: string;
   data: any;
   zoom: number;
+  mode: string;
   onUpload: (filename: string, data: ImageData) => void;
+  onSelect: (x1: number, y1: number, x2: number, y2: number) => void;
 }
 
-export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
+export const Canvas = ({
+  title,
+  data,
+  zoom,
+  mode,
+  onUpload,
+  onSelect,
+}: CanvasProps) => {
   const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
   const [prevZoom, setPrevZoom] = useState(1);
+  const [x1, setX1] = useState<number | null>(null);
+  const [y1, setY1] = useState<number | null>(null);
 
   const setupCanvas = (w: number, h: number, z: number) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
@@ -28,7 +47,6 @@ export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
   };
 
   useEffect(() => {
-    console.log(width, height, zoom);
     if (data !== null) {
       const scroller = scrollerRef.current as HTMLDivElement;
       const xCenter =
@@ -55,6 +73,48 @@ export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
       scroller.scrollTo(xScroll, yScroll);
     }
   }, [width, height, zoom]);
+
+  const getCoord = (e: MouseEvent | Touch) => {
+    const cnvs = canvasRef.current as HTMLCanvasElement;
+    const bounding = cnvs.getBoundingClientRect();
+    return [
+      Math.floor((e.clientX - bounding.left) / zoom),
+      Math.floor((e.clientY - bounding.top) / zoom),
+    ];
+  };
+
+  const onMouseDown = (e: MouseEvent) => {
+    if (mode !== "drag") return;
+    const [x, y] = getCoord(e);
+    setX1(x);
+    setY1(y);
+  };
+
+  const onMouseUp = (e: MouseEvent) => {
+    if (mode != "drag") return;
+    const [x2, y2] = getCoord(e);
+    onSelect(x1 as number, y1 as number, x2, y2);
+    setX1(null);
+    setY1(null);
+  };
+
+  const onMouseLeave = (e: MouseEvent) => {
+    setX1(null);
+    setY1(null);
+  };
+
+  const onTouch = (e: MouseEvent) => {
+    if (mode !== "touch") return;
+    const [x, y] = getCoord(e);
+    if (x1 === null) {
+      setX1(x);
+      setY1(y);
+    } else {
+      onSelect(x1 as number, y1 as number, x, y);
+      setX1(null);
+      setY1(null);
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -106,7 +166,13 @@ export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
             />
           </>
         )}
-        <canvas ref={canvasRef} />
+        <canvas
+          ref={canvasRef}
+          onMouseDown={onMouseDown}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseLeave}
+          onClick={onTouch}
+        />
       </div>
     </div>
   );

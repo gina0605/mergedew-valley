@@ -2,16 +2,22 @@ import Image from "next/image";
 
 export interface SettingsProps {
   zoom: number;
+  mode: string;
   setZoom: (x: number) => void;
+  setMode: (x: string) => void;
 }
 
-export const Settings = ({ zoom, setZoom }: SettingsProps) => (
+export const Settings = ({ zoom, mode, setZoom, setMode }: SettingsProps) => (
   <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-2">
     <div className="flex space-x-4 items-center">
       <div className="w-24">
-        <select className="border border-slate-300 w-24">
-          <option>드래그 모드</option>
-          <option>터치 모드</option>
+        <select
+          className="border border-slate-300 w-24"
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+        >
+          <option value="drag">드래그 모드</option>
+          <option value="touch">터치 모드</option>
         </select>
       </div>
       <div className="flex space-x-2 items-center">

@@ -2,17 +2,23 @@ import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
 import { useState } from "react";
 import { Button } from "./Button";
+import { array2d } from "@/utils";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
+  const [mode, setMode] = useState("drag");
   const [mergeName, setMergeName] = useState("");
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
   const [originalData, setOriginalData] = useState<ImageData | null>(null);
+  const [mergeSelected, setMergeSelected] = useState<boolean[][] | null>(null);
+  const [originalSelected, setOriginalSelected] = useState<boolean[][] | null>(
+    null
+  );
 
   return (
     <div className="flex flex-col items-center space-y-2">
-      <Settings zoom={zoom} setZoom={setZoom} />
+      <Settings zoom={zoom} mode={mode} setZoom={setZoom} setMode={setMode} />
       <div className="flex space-x-4">
         <Button text="이어서 병합" />
         <Button text="png 다운로드" />
@@ -23,19 +29,25 @@ export const Body = () => {
           title={`병합용 파일 ${mergeName}`}
           data={mergeData}
           zoom={zoom}
+          mode={mode}
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);
+            setMergeSelected(array2d(data.height, data.width, false));
           }}
+          onSelect={console.log}
         />
         <Canvas
           title={`원본 파일 ${originalName}`}
           data={originalData}
           zoom={zoom}
+          mode={mode}
           onUpload={(filename, data) => {
             setOriginalName(filename);
             setOriginalData(data);
+            setOriginalSelected(array2d(data.height, data.width, false));
           }}
+          onSelect={console.log}
         />
       </div>
     </div>
