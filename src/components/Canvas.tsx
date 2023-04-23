@@ -79,8 +79,8 @@ export const Canvas = ({
     if (data !== null) {
       updateCanvasZoom(canvasRef.current);
       updateCanvasZoom(guideRef.current);
-      setPrevZoom(zoom);
       zoomScroll();
+      setPrevZoom(zoom);
     }
   }, [zoom]);
 
