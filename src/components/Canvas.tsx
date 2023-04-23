@@ -25,8 +25,6 @@ export const Canvas = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const guideRef = useRef<HTMLCanvasElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
   const [prevZoom, setPrevZoom] = useState(1);
   const [x1, setX1] = useState<number | null>(null);
   const [y1, setY1] = useState<number | null>(null);
@@ -37,13 +35,13 @@ export const Canvas = ({
     cnvs.style.height = `${cnvs.height * zoom}px`;
   };
 
-  const setupCanvas = (w: number, h: number, z: number) => {
-    const cnvs = canvasRef.current as HTMLCanvasElement;
+  const drawImage = (cnvs: HTMLCanvasElement, img: HTMLImageElement) => {
+    cnvs.width = img.width;
+    cnvs.height = img.height;
+    cnvs.style.width = `${img.width * zoom}px`;
+    cnvs.style.height = `${img.height * zoom}px`;
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
-    ctx.canvas.width = w;
-    ctx.canvas.height = h;
-    ctx.canvas.style.width = `${w * z}px`;
-    ctx.canvas.style.height = `${h * z}px`;
+    ctx.drawImage(img, 0, 0);
     return ctx;
   };
 
@@ -53,10 +51,6 @@ export const Canvas = ({
       updateCanvasZoom(canvasRef.current);
       updateCanvasZoom(guideRef.current);
       setPrevZoom(zoom);
-      const ctx = canvasRef.current.getContext(
-        "2d"
-      ) as CanvasRenderingContext2D;
-      ctx.putImageData(data, 0, 0);
 
       const scroller = scrollerRef.current as HTMLDivElement;
       const xCenter =
@@ -79,21 +73,16 @@ export const Canvas = ({
       );
       scroller.scrollTo(xScroll, yScroll);
     }
-  }, [width, height, zoom]);
+  }, [zoom]);
 
   useEffect(() => {
+    if (!guideRef.current) return;
     if (guide) {
       setShowGuide(true);
       const img = new Image();
       img.src = guide;
       img.addEventListener("load", () => {
-        const cnvs = guideRef.current as HTMLCanvasElement;
-        const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
-        ctx.canvas.width = img.width;
-        ctx.canvas.height = img.height;
-        ctx.canvas.style.width = `${img.width * zoom}px`;
-        ctx.canvas.style.height = `${img.height * zoom}px`;
-        ctx.drawImage(img, 0, 0);
+        drawImage(guideRef.current as HTMLCanvasElement, img);
       });
     } else {
       setShowGuide(false);
@@ -180,7 +169,7 @@ export const Canvas = ({
               accept="image/png,.xnb"
               className="hidden"
               onChange={async (e) => {
-                if (e.target.files?.length !== 1) return;
+                if (e.target.files?.length !== 1 || !canvasRef.current) return;
                 const file = e.target.files[0];
                 const img = new Image();
                 img.src = URL.createObjectURL(
@@ -189,10 +178,10 @@ export const Canvas = ({
                     : (await unpackToContent(file)).content
                 );
                 img.addEventListener("load", () => {
-                  const ctx = setupCanvas(img.width, img.height, zoom);
-                  ctx.drawImage(img, 0, 0);
-                  setWidth(img.width);
-                  setHeight(img.height);
+                  const ctx = drawImage(
+                    canvasRef.current as HTMLCanvasElement,
+                    img
+                  );
                   onUpload(
                     file.name,
                     ctx.getImageData(0, 0, img.width, img.height)
