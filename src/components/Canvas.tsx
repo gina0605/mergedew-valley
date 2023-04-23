@@ -32,6 +32,11 @@ export const Canvas = ({
   const [y1, setY1] = useState<number | null>(null);
   const [showGuide, setShowGuide] = useState(false);
 
+  const updateCanvasZoom = (cnvs: HTMLCanvasElement) => {
+    cnvs.style.width = `${cnvs.width * zoom}px`;
+    cnvs.style.height = `${cnvs.height * zoom}px`;
+  };
+
   const setupCanvas = (w: number, h: number, z: number) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
@@ -43,19 +48,21 @@ export const Canvas = ({
   };
 
   useEffect(() => {
+    if (!canvasRef.current || !guideRef.current) return;
     if (data !== null) {
+      updateCanvasZoom(canvasRef.current);
+      updateCanvasZoom(guideRef.current);
+      setPrevZoom(zoom);
+      const ctx = canvasRef.current.getContext(
+        "2d"
+      ) as CanvasRenderingContext2D;
+      ctx.putImageData(data, 0, 0);
+
       const scroller = scrollerRef.current as HTMLDivElement;
       const xCenter =
         (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
       const yCenter =
         (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
-      const ctx = setupCanvas(width, height, zoom);
-      setPrevZoom(zoom);
-      const guideCnvs = guideRef.current as HTMLCanvasElement;
-      const guideCtx = guideCnvs.getContext("2d") as CanvasRenderingContext2D;
-      guideCtx.canvas.style.width = `${guideCtx.canvas.width * zoom}px`;
-      guideCtx.canvas.style.height = `${guideCtx.canvas.height * zoom}px`;
-      ctx.putImageData(data, 0, 0);
       const xScroll = Math.max(
         0,
         Math.min(
