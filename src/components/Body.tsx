@@ -37,7 +37,7 @@ export const Body = () => {
           data={mergeData}
           zoom={zoom}
           mode={mode}
-          guide={null}
+          guide={guide}
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);

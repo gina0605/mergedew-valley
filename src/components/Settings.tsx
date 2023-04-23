@@ -61,13 +61,6 @@ export const Settings = ({
         </div>
       </div>
       <div className="flex space-x-2">
-        <Image
-          src="/assets/icon-eye.svg"
-          alt="eye-open"
-          width="24"
-          height="24"
-          className="cursor-pointer"
-        />
         <p className="font-pretendard">가이드라인</p>
         <input
           type="file"

@@ -30,6 +30,7 @@ export const Canvas = ({
   const [prevZoom, setPrevZoom] = useState(1);
   const [x1, setX1] = useState<number | null>(null);
   const [y1, setY1] = useState<number | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   const setupCanvas = (w: number, h: number, z: number) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
@@ -74,18 +75,22 @@ export const Canvas = ({
   }, [width, height, zoom]);
 
   useEffect(() => {
-    if (!guide) return;
-    const img = new Image();
-    img.src = guide;
-    img.addEventListener("load", () => {
-      const cnvs = guideRef.current as HTMLCanvasElement;
-      const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
-      ctx.canvas.width = img.width;
-      ctx.canvas.height = img.height;
-      ctx.canvas.style.width = `${img.width * zoom}px`;
-      ctx.canvas.style.height = `${img.height * zoom}px`;
-      ctx.drawImage(img, 0, 0);
-    });
+    if (guide) {
+      setShowGuide(true);
+      const img = new Image();
+      img.src = guide;
+      img.addEventListener("load", () => {
+        const cnvs = guideRef.current as HTMLCanvasElement;
+        const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
+        ctx.canvas.width = img.width;
+        ctx.canvas.height = img.height;
+        ctx.canvas.style.width = `${img.width * zoom}px`;
+        ctx.canvas.style.height = `${img.height * zoom}px`;
+        ctx.drawImage(img, 0, 0);
+      });
+    } else {
+      setShowGuide(false);
+    }
   }, [guide]);
 
   const getCoord = (e: MouseEvent | Touch) => {
@@ -132,7 +137,17 @@ export const Canvas = ({
 
   return (
     <div className="flex flex-col">
-      <p className="canvas-title">{title}</p>
+      <div className="flex space-x-1">
+        <p
+          className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 ${
+            showGuide ? "text-black" : "text-slate-300"
+          }`}
+          onClick={() => setShowGuide((x) => !x)}
+        >
+          G
+        </p>
+        <p className="canvas-title">{title}</p>
+      </div>
       <div
         ref={scrollerRef}
         className={`canvas relative ${
@@ -180,7 +195,10 @@ export const Canvas = ({
             />
           </>
         )}
-        <canvas ref={guideRef} className="absolute z-0" />
+        <canvas
+          ref={guideRef}
+          className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
+        />
         <canvas
           ref={canvasRef}
           onMouseDown={onMouseDown}
