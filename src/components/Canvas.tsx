@@ -9,7 +9,7 @@ export interface CanvasProps {
   mode: string;
   guide: string | null;
   onUpload: (filename: string, data: ImageData) => void;
-  onSelect: (x1: number, y1: number, x2: number, y2: number) => void;
+  onSelect: (pos1: number[], pos2: number[]) => void;
 }
 
 export const Canvas = ({
@@ -26,8 +26,7 @@ export const Canvas = ({
   const guideRef = useRef<HTMLCanvasElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [prevZoom, setPrevZoom] = useState(1);
-  const [x1, setX1] = useState<number | null>(null);
-  const [y1, setY1] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState<number[] | null>(null);
   const [showGuide, setShowGuide] = useState(false);
 
   const updateCanvasZoom = (cnvs: HTMLCanvasElement) => {
@@ -102,34 +101,26 @@ export const Canvas = ({
 
   const onMouseDown = (e: MouseEvent) => {
     if (mode !== "drag") return;
-    const [x, y] = getCoord(e);
-    setX1(x);
-    setY1(y);
+    setMousePos(getCoord(e));
   };
 
   const onMouseUp = (e: MouseEvent) => {
-    if (mode != "drag") return;
-    const [x2, y2] = getCoord(e);
-    onSelect(x1 as number, y1 as number, x2, y2);
-    setX1(null);
-    setY1(null);
+    if (mode != "drag" || mousePos === null) return;
+    onSelect(mousePos, getCoord(e));
+    setMousePos(null);
   };
 
   const onMouseLeave = (e: MouseEvent) => {
-    setX1(null);
-    setY1(null);
+    setMousePos(null);
   };
 
   const onTouch = (e: MouseEvent) => {
     if (mode !== "touch") return;
-    const [x, y] = getCoord(e);
-    if (x1 === null) {
-      setX1(x);
-      setY1(y);
+    if (mousePos === null) {
+      setMousePos(getCoord(e));
     } else {
-      onSelect(x1 as number, y1 as number, x, y);
-      setX1(null);
-      setY1(null);
+      onSelect(mousePos, getCoord(e));
+      setMousePos(null);
     }
   };
 
