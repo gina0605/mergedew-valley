@@ -7,7 +7,7 @@ export interface CanvasProps {
   data: ImageData | null;
   zoom: number;
   mode: string;
-  guide: File | null;
+  guide: string | null;
   onUpload: (filename: string, data: ImageData) => void;
   onSelect: (x1: number, y1: number, x2: number, y2: number) => void;
 }
@@ -76,7 +76,7 @@ export const Canvas = ({
   useEffect(() => {
     if (!guide) return;
     const img = new Image();
-    img.src = URL.createObjectURL(guide);
+    img.src = guide;
     img.addEventListener("load", () => {
       const cnvs = guideRef.current as HTMLCanvasElement;
       const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;

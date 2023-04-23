@@ -7,7 +7,7 @@ import { array2d } from "@/utils";
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
   const [mode, setMode] = useState("drag");
-  const [guide, setGuide] = useState<File | null>(null);
+  const [guide, setGuide] = useState<string | null>(null);
   const [mergeName, setMergeName] = useState("");
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
@@ -37,7 +37,7 @@ export const Body = () => {
           data={mergeData}
           zoom={zoom}
           mode={mode}
-          guide={guide}
+          guide={null}
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);
@@ -50,7 +50,7 @@ export const Body = () => {
           data={originalData}
           zoom={zoom}
           mode={mode}
-          guide={null}
+          guide={guide}
           onUpload={(filename, data) => {
             setOriginalName(filename);
             setOriginalData(data);
