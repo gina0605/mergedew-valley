@@ -59,7 +59,12 @@ export const Canvas = ({ title, data, zoom, onUpload }: CanvasProps) => {
   return (
     <div className="flex flex-col">
       <p className="canvas-title">{title}</p>
-      <div ref={scrollerRef} className="canvas overflow-scroll">
+      <div
+        ref={scrollerRef}
+        className={`canvas ${
+          data === null ? "overflow-hidden" : "overflow-scroll"
+        }`}
+      >
         {data === null && (
           <>
             <label htmlFor={inputId}>
