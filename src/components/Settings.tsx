@@ -1,5 +1,6 @@
 import { betterParseInt } from "@/utils";
 import { useState } from "react";
+import { NumberInput } from "./NumberInput";
 
 export interface SettingsProps {
   zoom: number;
@@ -48,33 +49,30 @@ export const Settings = ({
             value={zoom}
             onChange={(e) => setZoom(betterParseInt(e.target.value))}
           />
-          <input
-            type="number"
+          <NumberInput
+            className="border border-slate-300 pl-1"
             min="1"
             max="20"
-            className="border border-slate-300 pl-1"
             value={zoom}
-            onChange={(e) => setZoom(betterParseInt(e.target.value))}
+            onChange={setZoom}
           />
         </div>
       </div>
       <div className="flex justify-center space-x-4">
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">x 오프셋</p>
-          <input
-            type="number"
+          <NumberInput
             className="w-12 border border-slate-300 pl-1"
             value={xOffset}
-            onChange={(e) => setXOffset(betterParseInt(e.target.value))}
+            onChange={setXOffset}
           />
         </div>
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">y 오프셋</p>
-          <input
-            type="number"
+          <NumberInput
             className="w-12 border border-slate-300 pl-1"
             value={yOffset}
-            onChange={(e) => setYOffset(betterParseInt(e.target.value))}
+            onChange={setYOffset}
           />
         </div>
       </div>
