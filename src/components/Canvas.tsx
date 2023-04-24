@@ -42,11 +42,15 @@ export const Canvas = ({
     cnvs.style.height = `${cnvs.height * zoom}px`;
   };
 
+  const setupCanvas = (cnvs: HTMLCanvasElement, w: number, h: number) => {
+    cnvs.width = w;
+    cnvs.height = h;
+    cnvs.style.width = `${w * zoom}px`;
+    cnvs.style.height = `${h * zoom}px`;
+  };
+
   const drawImage = (cnvs: HTMLCanvasElement, img: HTMLImageElement) => {
-    cnvs.width = img.width;
-    cnvs.height = img.height;
-    cnvs.style.width = `${img.width * zoom}px`;
-    cnvs.style.height = `${img.height * zoom}px`;
+    setupCanvas(cnvs, img.width, img.height);
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
     ctx.drawImage(img, 0, 0);
     return ctx;
@@ -83,6 +87,14 @@ export const Canvas = ({
       setPrevZoom(zoom);
     }
   }, [zoom]);
+
+  useEffect(() => {
+    if (!canvasRef.current || !data) return;
+    const cnvs = canvasRef.current as HTMLCanvasElement;
+    setupCanvas(cnvs, data.width, data.height);
+    const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
+    ctx.putImageData(data, 0, 0);
+  }, [data]);
 
   useEffect(() => {
     if (!guideRef.current) return;

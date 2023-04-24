@@ -4,17 +4,25 @@ import { useState } from "react";
 export interface SettingsProps {
   zoom: number;
   mode: string;
+  xOffset: number;
+  yOffset: number;
   setZoom: (x: number) => void;
   setMode: (x: string) => void;
   setGuide: (x: string) => void;
+  setXOffset: (x: number) => void;
+  setYOffset: (x: number) => void;
 }
 
 export const Settings = ({
   zoom,
   mode,
+  xOffset,
+  yOffset,
   setZoom,
   setMode,
   setGuide,
+  setXOffset,
+  setYOffset,
 }: SettingsProps) => {
   const [guideUrl, setGuideUrl] = useState<string | null>(null);
 
@@ -53,11 +61,21 @@ export const Settings = ({
       <div className="flex justify-center space-x-4">
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">x 오프셋</p>
-          <input type="number" className="w-12 border border-slate-300" />
+          <input
+            type="number"
+            className="w-12 border border-slate-300"
+            value={xOffset}
+            onChange={(e) => setXOffset(parseInt(e.target.value))}
+          />
         </div>
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">y 오프셋</p>
-          <input type="number" className="w-12 border border-slate-300" />
+          <input
+            type="number"
+            className="w-12 border border-slate-300"
+            value={yOffset}
+            onChange={(e) => setYOffset(parseInt(e.target.value))}
+          />
         </div>
       </div>
       <div className="flex space-x-2">
