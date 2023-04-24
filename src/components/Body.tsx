@@ -52,9 +52,9 @@ export const Body = () => {
       for (let j = 0; j < mergeData.width; j++)
         if (selected[i][j]) {
           x1 = Math.min(x1, j + xOffset);
-          y1 = Math.min(y1, i + xOffset);
+          y1 = Math.min(y1, i + yOffset);
           x2 = Math.max(x2, j + xOffset);
-          y2 = Math.max(y2, i + xOffset);
+          y2 = Math.max(y2, i + yOffset);
         }
 
     const readSelected = (x: number, y: number) => {
