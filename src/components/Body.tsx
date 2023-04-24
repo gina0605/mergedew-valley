@@ -40,26 +40,54 @@ export const Body = () => {
   };
 
   const createOriginalCurrent = () => {
-    if (originalData === null) return null;
-    const d = Array(originalData.width * originalData.height * 4).fill(0);
-    for (let i = 0; i < originalData.width * originalData.height; i++)
-      if (
-        selected !== null &&
-        selected[Math.floor(i / originalData.width)][i % originalData.width]
-      ) {
-        d[i * 4] = originalData.data[i * 4] / 2;
-        d[i * 4 + 1] = originalData.data[i * 4 + 1] / 2;
-        d[i * 4 + 2] = originalData.data[i * 4 + 2] / 2;
-        d[i * 4 + 3] = 127 + originalData.data[i * 4 + 3] / 2;
-      } else {
-        d[i * 4] = originalData.data[i * 4];
-        d[i * 4 + 1] = originalData.data[i * 4 + 1];
-        d[i * 4 + 2] = originalData.data[i * 4 + 2];
-        d[i * 4 + 3] = originalData.data[i * 4 + 3];
+    if (originalData === null || mergeData === null || selected === null)
+      return originalData;
+
+    let x1 = 0,
+      x2 = originalData.width,
+      y1 = 0,
+      y2 = originalData.height;
+    for (let i = 0; i < mergeData.height; i++)
+      for (let j = 0; j < mergeData.width; j++)
+        if (selected[i][j]) {
+          x1 = Math.min(x1, i + xOffset);
+          y1 = Math.min(y1, j + xOffset);
+          x2 = Math.max(x2, i + xOffset);
+          y2 = Math.max(y2, i + xOffset);
+        }
+
+    const readSelected = (x: number, y: number) => {
+      if (x < 0 || x >= mergeData.width || y < 0 || y >= mergeData.height)
+        return false;
+      return selected[y][x];
+    };
+
+    const d = Array((x2 - x1) * (y2 - y1) * 4).fill(0);
+    for (let i = y1; i < y2; i++)
+      for (let j = x1; j < x2; j++) {
+        const idx = ((i - y1) * (x2 - x1) + j - x1) * 4;
+        if (readSelected(j - xOffset, i - yOffset)) {
+          const midx = ((i - yOffset) * mergeData.width + j - xOffset) * 4;
+          d[idx] = mergeData.data[midx] / 2;
+          d[idx + 1] = mergeData.data[midx + 1] / 2;
+          d[idx + 2] = mergeData.data[midx + 2] / 2;
+          d[idx + 3] = 127 + mergeData.data[midx + 3] / 2;
+        } else if (
+          0 <= j &&
+          j < originalData.width &&
+          0 <= i &&
+          i < originalData.height
+        ) {
+          const oidx = (i * originalData.width + j) * 4;
+          d[idx] = originalData.data[oidx];
+          d[idx + 1] = originalData.data[oidx + 1];
+          d[idx + 2] = originalData.data[oidx + 2];
+          d[idx + 3] = originalData.data[oidx + 3];
+        }
       }
 
     const uintc8 = new Uint8ClampedArray(d);
-    return new ImageData(uintc8, originalData.width, originalData.height);
+    return new ImageData(uintc8, x2 - x1, y2 - y1);
   };
 
   const updateSelected = (x1: number, y1: number, x2: number, y2: number) =>
@@ -84,7 +112,7 @@ export const Body = () => {
   useEffect(() => {
     setMergeCurrent(createMergeCurrent());
     setOriginalCurrent(createOriginalCurrent());
-  }, [mergeData, originalData, selected]);
+  }, [mergeData, originalData, selected, xOffset, yOffset]);
 
   return (
     <div className="flex flex-col items-center space-y-2">

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { betterParseInt } from "@/utils";
 import { useState } from "react";
 
 export interface SettingsProps {
@@ -46,7 +46,7 @@ export const Settings = ({
             min="1"
             max="20"
             value={zoom}
-            onChange={(e) => setZoom(parseInt(e.target.value))}
+            onChange={(e) => setZoom(betterParseInt(e.target.value))}
           />
           <input
             type="number"
@@ -54,7 +54,7 @@ export const Settings = ({
             max="20"
             className="border border-slate-300 pl-1"
             value={zoom}
-            onChange={(e) => setZoom(parseInt(e.target.value))}
+            onChange={(e) => setZoom(betterParseInt(e.target.value))}
           />
         </div>
       </div>
@@ -65,7 +65,7 @@ export const Settings = ({
             type="number"
             className="w-12 border border-slate-300 pl-1"
             value={xOffset}
-            onChange={(e) => setXOffset(parseInt(e.target.value))}
+            onChange={(e) => setXOffset(betterParseInt(e.target.value))}
           />
         </div>
         <div className="flex space-x-1">
@@ -74,7 +74,7 @@ export const Settings = ({
             type="number"
             className="w-12 border border-slate-300 pl-1"
             value={yOffset}
-            onChange={(e) => setYOffset(parseInt(e.target.value))}
+            onChange={(e) => setYOffset(betterParseInt(e.target.value))}
           />
         </div>
       </div>
