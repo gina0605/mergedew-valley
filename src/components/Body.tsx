@@ -3,6 +3,7 @@ import { Canvas } from "./Canvas";
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { array2d } from "@/utils";
+import { pack } from "xnb";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
@@ -149,15 +150,38 @@ export const Body = () => {
     a.remove();
   };
 
-  const onPngDownload = () => {
+  const drawResult = () => {
     const imgData = createOriginalCurrent(false);
-    if (imgData === null) return;
+    if (imgData === null) return null;
     const cnvs = document.createElement("canvas");
     cnvs.width = imgData.width;
     cnvs.height = imgData.height;
     cnvs.getContext("2d")?.putImageData(imgData, 0, 0);
-    downloadFile(cnvs.toDataURL(), originalName.slice(0, -3) + "png");
+    return cnvs;
+  };
+
+  const getFileName = (ext: string) => originalName.slice(0, -3) + ext;
+
+  const onPngDownload = () => {
+    const cnvs = drawResult();
+    if (cnvs === null) return;
+    downloadFile(cnvs.toDataURL(), getFileName("png"));
     cnvs.remove();
+  };
+
+  const onXnbDownload = async () => {
+    const cnvs = drawResult();
+    if (cnvs === null) return;
+    cnvs.toBlob((b) => {
+      if (b === null) return;
+      const file = new File([b], getFileName("png"));
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      pack(dt.files).then((r: any) => {
+        if (r.length !== 1) console.log("something went wrong");
+        downloadFile(URL.createObjectURL(r[0].data), getFileName("xnb"));
+      });
+    });
   };
 
   return (
@@ -183,7 +207,11 @@ export const Body = () => {
           disabled={originalData === null}
           onClick={onPngDownload}
         />
-        <Button text="xnb 다운로드" disabled={originalData === null} />
+        <Button
+          text="xnb 다운로드"
+          disabled={originalData === null}
+          onClick={onXnbDownload}
+        />
       </div>
       {warning && (
         <p className="text-omyu text-red-600 max-w-[90vw] break-keep">
