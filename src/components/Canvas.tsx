@@ -149,8 +149,8 @@ export const Canvas = ({
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex space-x-1">
+    <div className="flex flex-col w-[90vw] md:w-[40vw]">
+      <div className="flex space-x-1 w-full">
         <p
           className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 ${
             showGuide ? "text-black" : "text-slate-300"
@@ -159,11 +159,11 @@ export const Canvas = ({
         >
           G
         </p>
-        <p className="canvas-title">{title}</p>
+        <p className="font-pretendard overflow-truncate grow">{title}</p>
       </div>
       <div
         ref={scrollerRef}
-        className={`canvas relative ${
+        className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative ${
           data === null ? "overflow-hidden" : "overflow-scroll"
         }`}
       >
