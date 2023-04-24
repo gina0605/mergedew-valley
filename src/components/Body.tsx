@@ -94,7 +94,10 @@ export const Body = () => {
   const updateSelected = (x1: number, y1: number, x2: number, y2: number) =>
     setSelected((s: boolean[][] | null) => {
       if (s === null || s.length === 0 || s[0].length === 0) return s;
-      const v = !s[y1][x1];
+      let v;
+      if (0 <= x1 && x1 < s[0].length && 0 <= y1 && y1 < s.length)
+        v = !s[y1][x1];
+      else v = true;
       const ss = s.slice();
       for (
         let i = Math.max(Math.min(x1, x2), 0);
