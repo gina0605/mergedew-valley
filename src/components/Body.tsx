@@ -19,6 +19,7 @@ export const Body = () => {
   const [originalCurrent, setOriginalCurrent] = useState<ImageData | null>(
     null
   );
+  const [warning, setWarning] = useState<string | null>(null);
 
   const createMergeCurrent = () => {
     if (mergeData === null || selected === null) return null;
@@ -50,9 +51,9 @@ export const Body = () => {
     for (let i = 0; i < mergeData.height; i++)
       for (let j = 0; j < mergeData.width; j++)
         if (selected[i][j]) {
-          x1 = Math.min(x1, i + xOffset);
-          y1 = Math.min(y1, j + xOffset);
-          x2 = Math.max(x2, i + xOffset);
+          x1 = Math.min(x1, j + xOffset);
+          y1 = Math.min(y1, i + xOffset);
+          x2 = Math.max(x2, j + xOffset);
           y2 = Math.max(y2, i + xOffset);
         }
 
@@ -114,6 +115,21 @@ export const Body = () => {
     setOriginalCurrent(createOriginalCurrent());
   }, [mergeData, originalData, selected, xOffset, yOffset]);
 
+  useEffect(() => {
+    if (!originalData || !originalCurrent) setWarning(null);
+    else {
+      const w1 = originalData.width,
+        h1 = originalData.height,
+        w2 = originalCurrent.width,
+        h2 = originalCurrent.height;
+      if (w1 === w2 && h1 === h2) setWarning(null);
+      else
+        setWarning(
+          `이미지의 크기가 (${w1}, ${h1})에서 (${w2}, ${h2})로 변경됩니다.`
+        );
+    }
+  }, [originalData, originalCurrent]);
+
   return (
     <div className="flex flex-col items-center space-y-2">
       <Settings
@@ -132,6 +148,11 @@ export const Body = () => {
         <Button text="png 다운로드" />
         <Button text="xnb 다운로드" />
       </div>
+      {warning && (
+        <p className="text-omyu text-red-600 max-w-[90vw] break-keep">
+          {warning}
+        </p>
+      )}
       <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2 pb-8">
         <Canvas
           title={`병합용 파일 ${mergeName}`}
