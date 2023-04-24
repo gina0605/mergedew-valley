@@ -52,7 +52,7 @@ export const Settings = ({
             type="number"
             min="1"
             max="20"
-            className="border border-slate-300 px-1"
+            className="border border-slate-300 pl-1"
             value={zoom}
             onChange={(e) => setZoom(parseInt(e.target.value))}
           />
@@ -63,7 +63,7 @@ export const Settings = ({
           <p className="align-middle h-6 leading-6 font-pretendard">x 오프셋</p>
           <input
             type="number"
-            className="w-12 border border-slate-300"
+            className="w-12 border border-slate-300 pl-1"
             value={xOffset}
             onChange={(e) => setXOffset(parseInt(e.target.value))}
           />
@@ -72,7 +72,7 @@ export const Settings = ({
           <p className="align-middle h-6 leading-6 font-pretendard">y 오프셋</p>
           <input
             type="number"
-            className="w-12 border border-slate-300"
+            className="w-12 border border-slate-300 pl-1"
             value={yOffset}
             onChange={(e) => setYOffset(parseInt(e.target.value))}
           />
