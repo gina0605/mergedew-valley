@@ -14,20 +14,17 @@ export const Body = () => {
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
   const [originalData, setOriginalData] = useState<ImageData | null>(null);
-  const [mergeSelected, setMergeSelected] = useState<boolean[][] | null>(null);
-  const [originalSelected, setOriginalSelected] = useState<boolean[][] | null>(
-    null
-  );
+  const [selected, setSelected] = useState<boolean[][] | null>(null);
   const [mergeCurrent, setMergeCurrent] = useState<ImageData | null>(null);
   const [originalCurrent, setOriginalCurrent] = useState<ImageData | null>(
     null
   );
 
   const createMergeCurrent = () => {
-    if (mergeData === null || mergeSelected === null) return null;
+    if (mergeData === null || selected === null) return null;
     const d = Array(mergeData.width * mergeData.height * 4).fill(0);
     for (let i = 0; i < mergeData.width * mergeData.height; i++)
-      if (mergeSelected[Math.floor(i / mergeData.width)][i % mergeData.width]) {
+      if (selected[Math.floor(i / mergeData.width)][i % mergeData.width]) {
         d[i * 4] = mergeData.data[i * 4] / 2;
         d[i * 4 + 1] = mergeData.data[i * 4 + 1] / 2;
         d[i * 4 + 2] = mergeData.data[i * 4 + 2] / 2;
@@ -43,13 +40,12 @@ export const Body = () => {
   };
 
   const createOriginalCurrent = () => {
-    if (originalData === null || originalSelected === null) return null;
+    if (originalData === null) return null;
     const d = Array(originalData.width * originalData.height * 4).fill(0);
     for (let i = 0; i < originalData.width * originalData.height; i++)
       if (
-        originalSelected[Math.floor(i / originalData.width)][
-          i % originalData.width
-        ]
+        selected !== null &&
+        selected[Math.floor(i / originalData.width)][i % originalData.width]
       ) {
         d[i * 4] = originalData.data[i * 4] / 2;
         d[i * 4 + 1] = originalData.data[i * 4 + 1] / 2;
@@ -66,10 +62,10 @@ export const Body = () => {
     return new ImageData(uintc8, originalData.width, originalData.height);
   };
 
-  const updateSelected =
-    (x1: number, y1: number, x2: number, y2: number, v: boolean) =>
-    (s: boolean[][] | null) => {
+  const updateSelected = (x1: number, y1: number, x2: number, y2: number) =>
+    setSelected((s: boolean[][] | null) => {
       if (s === null || s.length === 0 || s[0].length === 0) return s;
+      const v = !s[y1][x1];
       const ss = s.slice();
       for (
         let i = Math.max(Math.min(x1, x2), 0);
@@ -83,23 +79,12 @@ export const Body = () => {
         )
           ss[j][i] = v;
       return ss;
-    };
-
-  useEffect(() => {
-    if (mergeData !== null)
-      setMergeSelected(array2d(mergeData.height, mergeData.width, false));
-  }, [mergeData]);
-  useEffect(() => {
-    if (originalData !== null)
-      setOriginalSelected(
-        array2d(originalData.height, originalData.width, false)
-      );
-  }, [originalData]);
+    });
 
   useEffect(() => {
     setMergeCurrent(createMergeCurrent());
     setOriginalCurrent(createOriginalCurrent());
-  }, [mergeSelected, originalSelected]);
+  }, [mergeData, originalData, selected]);
 
   return (
     <div className="flex flex-col items-center space-y-2">
@@ -129,20 +114,10 @@ export const Body = () => {
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);
+            setSelected(array2d(data.height, data.width, false));
           }}
           onSelect={([x1, y1], [x2, y2]) => {
-            if (mergeSelected === null) return;
-            const v = mergeSelected[y1][x1];
-            setMergeSelected(updateSelected(x1, y1, x2, y2, !v));
-            setOriginalSelected(
-              updateSelected(
-                x1 + xOffset,
-                y1 + yOffset,
-                x2 + xOffset,
-                y2 + yOffset,
-                !v
-              )
-            );
+            updateSelected(x1, y1, x2, y2);
           }}
         />
         <Canvas
@@ -156,17 +131,11 @@ export const Body = () => {
             setOriginalData(data);
           }}
           onSelect={([x1, y1], [x2, y2]) => {
-            if (originalSelected === null) return;
-            const v = originalSelected[y1][x1];
-            setOriginalSelected(updateSelected(x1, y1, x2, y2, !v));
-            setMergeSelected(
-              updateSelected(
-                x1 - xOffset,
-                y1 - yOffset,
-                x2 - xOffset,
-                y2 - yOffset,
-                !v
-              )
+            updateSelected(
+              x1 - xOffset,
+              y1 - yOffset,
+              x2 - xOffset,
+              y2 - yOffset
             );
           }}
         />
