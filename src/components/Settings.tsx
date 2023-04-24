@@ -28,7 +28,7 @@ export const Settings = ({
   const [guideUrl, setGuideUrl] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-2">
+    <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-3">
       <div className="flex space-x-4 items-center">
         <div className="w-24">
           <select
@@ -62,7 +62,7 @@ export const Settings = ({
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">x 오프셋</p>
           <NumberInput
-            className="w-12 border border-slate-300 pl-1"
+            className="w-16 border border-slate-300 pl-1"
             value={xOffset}
             onChange={setXOffset}
           />
@@ -70,7 +70,7 @@ export const Settings = ({
         <div className="flex space-x-1">
           <p className="align-middle h-6 leading-6 font-pretendard">y 오프셋</p>
           <NumberInput
-            className="w-12 border border-slate-300 pl-1"
+            className="w-16 border border-slate-300 pl-1"
             value={yOffset}
             onChange={setYOffset}
           />
