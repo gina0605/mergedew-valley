@@ -40,7 +40,7 @@ export const Body = () => {
     return new ImageData(uintc8, mergeData.width, mergeData.height);
   };
 
-  const createOriginalCurrent = () => {
+  const createOriginalCurrent = (gray: boolean) => {
     if (originalData === null || mergeData === null || selected === null)
       return originalData;
 
@@ -69,10 +69,17 @@ export const Body = () => {
         const idx = ((i - y1) * (x2 - x1) + j - x1) * 4;
         if (readSelected(j - xOffset, i - yOffset)) {
           const midx = ((i - yOffset) * mergeData.width + j - xOffset) * 4;
-          d[idx] = mergeData.data[midx] / 2;
-          d[idx + 1] = mergeData.data[midx + 1] / 2;
-          d[idx + 2] = mergeData.data[midx + 2] / 2;
-          d[idx + 3] = 127 + mergeData.data[midx + 3] / 2;
+          if (gray) {
+            d[idx] = mergeData.data[midx] / 2;
+            d[idx + 1] = mergeData.data[midx + 1] / 2;
+            d[idx + 2] = mergeData.data[midx + 2] / 2;
+            d[idx + 3] = 127 + mergeData.data[midx + 3] / 2;
+          } else {
+            d[idx] = mergeData.data[midx];
+            d[idx + 1] = mergeData.data[midx + 1];
+            d[idx + 2] = mergeData.data[midx + 2];
+            d[idx + 3] = mergeData.data[midx + 3];
+          }
         } else if (
           0 <= j &&
           j < originalData.width &&
@@ -115,7 +122,7 @@ export const Body = () => {
 
   useEffect(() => {
     setMergeCurrent(createMergeCurrent());
-    setOriginalCurrent(createOriginalCurrent());
+    setOriginalCurrent(createOriginalCurrent(true));
   }, [mergeData, originalData, selected, xOffset, yOffset]);
 
   useEffect(() => {
@@ -133,6 +140,26 @@ export const Body = () => {
     }
   }, [originalData, originalCurrent]);
 
+  const downloadFile = (href: string, filename: string) => {
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  const onPngDownload = () => {
+    const imgData = createOriginalCurrent(false);
+    if (imgData === null) return;
+    const cnvs = document.createElement("canvas");
+    cnvs.width = imgData.width;
+    cnvs.height = imgData.height;
+    cnvs.getContext("2d")?.putImageData(imgData, 0, 0);
+    downloadFile(cnvs.toDataURL(), originalName.slice(0, -3) + "png");
+    cnvs.remove();
+  };
+
   return (
     <div className="flex flex-col items-center space-y-2">
       <Settings
@@ -147,9 +174,16 @@ export const Body = () => {
         setYOffset={setYOffset}
       />
       <div className="flex space-x-4">
-        <Button text="이어서 병합" />
-        <Button text="png 다운로드" />
-        <Button text="xnb 다운로드" />
+        <Button
+          text="이어서 병합"
+          disabled={originalData === null || mergeData === null}
+        />
+        <Button
+          text="png 다운로드"
+          disabled={originalData === null}
+          onClick={onPngDownload}
+        />
+        <Button text="xnb 다운로드" disabled={originalData === null} />
       </div>
       {warning && (
         <p className="text-omyu text-red-600 max-w-[90vw] break-keep">
