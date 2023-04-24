@@ -93,8 +93,16 @@ export const Canvas = ({
     const cnvs = canvasRef.current as HTMLCanvasElement;
     setupCanvas(cnvs, data.width, data.height);
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
-    ctx.putImageData(data, 0, 0);
-  }, [data]);
+    if (mode === "touch" && mousePos) {
+      const modifData = data.data.slice();
+      const idx = mousePos[1] * data.width + mousePos[0];
+      modifData[idx * 4] = 255;
+      modifData[idx * 4 + 1] = 0;
+      modifData[idx * 4 + 2] = 0;
+      modifData[idx * 4 + 3] = 255;
+      ctx.putImageData(new ImageData(modifData, data.width, data.height), 0, 0);
+    } else ctx.putImageData(data, 0, 0);
+  }, [data, mousePos]);
 
   useEffect(() => {
     if (!guideRef.current) return;
