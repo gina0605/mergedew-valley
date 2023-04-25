@@ -32,7 +32,7 @@ export const Body = () => {
     ];
   };
 
-  const createOriginalCurrent = (gray: boolean) => {
+  const createOriginalCurrent = () => {
     if (originalData === null || mergeData === null || target === null)
       return originalData;
 
@@ -70,7 +70,7 @@ export const Body = () => {
   };
 
   useEffect(() => {
-    setOriginalCurrent(createOriginalCurrent(true));
+    setOriginalCurrent(createOriginalCurrent());
   }, [mergeData, originalData, target, xOffset, yOffset]);
 
   useEffect(() => {
@@ -98,12 +98,11 @@ export const Body = () => {
   };
 
   const drawResult = () => {
-    const imgData = createOriginalCurrent(false);
-    if (imgData === null) return null;
+    if (originalData === null) return null;
     const cnvs = document.createElement("canvas");
-    cnvs.width = imgData.width;
-    cnvs.height = imgData.height;
-    cnvs.getContext("2d")?.putImageData(imgData, 0, 0);
+    cnvs.width = originalData.width;
+    cnvs.height = originalData.height;
+    cnvs.getContext("2d")?.putImageData(originalData, 0, 0);
     return cnvs;
   };
 
@@ -143,20 +142,36 @@ export const Body = () => {
         setYOffset={setYOffset}
       />
       <div className="flex space-x-4">
-        <Button
-          text="이어서 병합"
-          disabled={originalData === null || mergeData === null}
-        />
-        <Button
-          text="png 다운로드"
-          disabled={originalData === null}
-          onClick={onPngDownload}
-        />
-        <Button
-          text="xnb 다운로드"
-          disabled={originalData === null}
-          onClick={onXnbDownload}
-        />
+        {target ? (
+          <>
+            <Button
+              text="영역 확정하기"
+              disabled={originalData === null || mergeData === null}
+              onClick={() => {
+                setOriginalData(createOriginalCurrent());
+                setTarget(null);
+              }}
+            />
+            <Button
+              text="영역 선택 취소"
+              disabled={originalData === null || mergeData === null}
+              onClick={() => setTarget(null)}
+            />
+          </>
+        ) : (
+          <>
+            <Button
+              text="png 다운로드"
+              disabled={originalData === null}
+              onClick={onPngDownload}
+            />
+            <Button
+              text="xnb 다운로드"
+              disabled={originalData === null}
+              onClick={onXnbDownload}
+            />
+          </>
+        )}
       </div>
       {warning && (
         <p className="text-omyu text-red-600 max-w-[90vw] break-keep">
