@@ -2,12 +2,11 @@ import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
-import { array2d } from "@/utils";
+import { intoRange } from "@/utils";
 import { pack } from "xnb";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
-  const [mode, setMode] = useState("drag");
   const [guide, setGuide] = useState<string | null>(null);
   const [xOffset, setXOffset] = useState(0);
   const [yOffset, setYOffset] = useState(0);
@@ -15,72 +14,43 @@ export const Body = () => {
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
   const [originalData, setOriginalData] = useState<ImageData | null>(null);
-  const [selected, setSelected] = useState<boolean[][] | null>(null);
-  const [mergeCurrent, setMergeCurrent] = useState<ImageData | null>(null);
+  const [target, setTarget] = useState<number[] | null>(null);
   const [originalCurrent, setOriginalCurrent] = useState<ImageData | null>(
     null
   );
   const [warning, setWarning] = useState<string | null>(null);
 
-  const createMergeCurrent = () => {
-    if (mergeData === null || selected === null) return null;
-    const d = Array(mergeData.width * mergeData.height * 4).fill(0);
-    for (let i = 0; i < mergeData.width * mergeData.height; i++)
-      if (selected[Math.floor(i / mergeData.width)][i % mergeData.width]) {
-        d[i * 4] = mergeData.data[i * 4] / 2;
-        d[i * 4 + 1] = mergeData.data[i * 4 + 1] / 2;
-        d[i * 4 + 2] = mergeData.data[i * 4 + 2] / 2;
-        d[i * 4 + 3] = 127 + mergeData.data[i * 4 + 3] / 2;
-      } else {
-        d[i * 4] = mergeData.data[i * 4];
-        d[i * 4 + 1] = mergeData.data[i * 4 + 1];
-        d[i * 4 + 2] = mergeData.data[i * 4 + 2];
-        d[i * 4 + 3] = mergeData.data[i * 4 + 3];
-      }
-    const uintc8 = new Uint8ClampedArray(d);
-    return new ImageData(uintc8, mergeData.width, mergeData.height);
+  const getOriginalCurrentRange = () => {
+    if (!originalData) return [0, 0, 0, 0];
+    if (!target) return [0, 0, originalData.width, originalData.height];
+    let [tx1, ty1, tx2, ty2] = target;
+    return [
+      Math.min(0, tx1 + xOffset),
+      Math.min(0, ty1 + yOffset),
+      Math.max(originalData.width, tx2 + xOffset),
+      Math.max(originalData.height, ty2 + yOffset),
+    ];
   };
 
   const createOriginalCurrent = (gray: boolean) => {
-    if (originalData === null || mergeData === null || selected === null)
+    if (originalData === null || mergeData === null || target === null)
       return originalData;
 
-    let x1 = 0,
-      x2 = originalData.width,
-      y1 = 0,
-      y2 = originalData.height;
-    for (let i = 0; i < mergeData.height; i++)
-      for (let j = 0; j < mergeData.width; j++)
-        if (selected[i][j]) {
-          x1 = Math.min(x1, j + xOffset);
-          y1 = Math.min(y1, i + yOffset);
-          x2 = Math.max(x2, j + xOffset);
-          y2 = Math.max(y2, i + yOffset);
-        }
+    let [x1, y1, x2, y2] = getOriginalCurrentRange();
 
-    const readSelected = (x: number, y: number) => {
-      if (x < 0 || x >= mergeData.width || y < 0 || y >= mergeData.height)
-        return false;
-      return selected[y][x];
-    };
+    const isTarget = (x: number, y: number) =>
+      target[0] <= x && x <= target[2] && target[1] <= y && y <= target[3];
 
     const d = Array((x2 - x1) * (y2 - y1) * 4).fill(0);
     for (let i = y1; i < y2; i++)
       for (let j = x1; j < x2; j++) {
         const idx = ((i - y1) * (x2 - x1) + j - x1) * 4;
-        if (readSelected(j - xOffset, i - yOffset)) {
+        if (isTarget(j - xOffset, i - yOffset)) {
           const midx = ((i - yOffset) * mergeData.width + j - xOffset) * 4;
-          if (gray) {
-            d[idx] = mergeData.data[midx] / 2;
-            d[idx + 1] = mergeData.data[midx + 1] / 2;
-            d[idx + 2] = mergeData.data[midx + 2] / 2;
-            d[idx + 3] = 127 + mergeData.data[midx + 3] / 2;
-          } else {
-            d[idx] = mergeData.data[midx];
-            d[idx + 1] = mergeData.data[midx + 1];
-            d[idx + 2] = mergeData.data[midx + 2];
-            d[idx + 3] = mergeData.data[midx + 3];
-          }
+          d[idx] = mergeData.data[midx];
+          d[idx + 1] = mergeData.data[midx + 1];
+          d[idx + 2] = mergeData.data[midx + 2];
+          d[idx + 3] = mergeData.data[midx + 3];
         } else if (
           0 <= j &&
           j < originalData.width &&
@@ -99,32 +69,9 @@ export const Body = () => {
     return new ImageData(uintc8, x2 - x1, y2 - y1);
   };
 
-  const updateSelected = (x1: number, y1: number, x2: number, y2: number) =>
-    setSelected((s: boolean[][] | null) => {
-      if (s === null || s.length === 0 || s[0].length === 0) return s;
-      let v;
-      if (0 <= x1 && x1 < s[0].length && 0 <= y1 && y1 < s.length)
-        v = !s[y1][x1];
-      else v = true;
-      const ss = s.slice();
-      for (
-        let i = Math.max(Math.min(x1, x2), 0);
-        i <= Math.min(Math.max(x1, x2), s[0].length - 1);
-        i++
-      )
-        for (
-          let j = Math.max(Math.min(y1, y2), 0);
-          j <= Math.min(Math.max(y1, y2), s.length - 1);
-          j++
-        )
-          ss[j][i] = v;
-      return ss;
-    });
-
   useEffect(() => {
-    setMergeCurrent(createMergeCurrent());
     setOriginalCurrent(createOriginalCurrent(true));
-  }, [mergeData, originalData, selected, xOffset, yOffset]);
+  }, [mergeData, originalData, target, xOffset, yOffset]);
 
   useEffect(() => {
     if (!originalData || !originalCurrent) setWarning(null);
@@ -188,12 +135,10 @@ export const Body = () => {
     <div className="flex flex-col items-center space-y-2">
       <Settings
         zoom={zoom}
-        mode={mode}
         xOffset={xOffset}
         yOffset={yOffset}
         setGuide={setGuide}
         setZoom={setZoom}
-        setMode={setMode}
         setXOffset={setXOffset}
         setYOffset={setYOffset}
       />
@@ -221,35 +166,49 @@ export const Body = () => {
       <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 pt-2 pb-8">
         <Canvas
           title={`병합용 파일 ${mergeName}`}
-          data={mergeCurrent}
+          data={mergeData}
           zoom={zoom}
-          mode={mode}
           guide={guide}
+          target={target}
+          defaultSelectable
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);
-            setSelected(array2d(data.height, data.width, false));
           }}
-          onSelect={([x1, y1], [x2, y2]) => {
-            updateSelected(x1, y1, x2, y2);
-          }}
+          onSelect={setTarget}
         />
         <Canvas
           title={`원본 파일 ${originalName}`}
           data={originalCurrent}
           zoom={zoom}
-          mode={mode}
           guide={guide}
+          target={(() => {
+            if (!target) return null;
+            const r = getOriginalCurrentRange();
+            return [
+              target[0] + xOffset - r[0],
+              target[1] + yOffset - r[1],
+              target[2] + xOffset - r[0],
+              target[3] + yOffset - r[1],
+            ];
+          })()}
           onUpload={(filename, data) => {
             setOriginalName(filename);
             setOriginalData(data);
           }}
-          onSelect={([x1, y1], [x2, y2]) => {
-            updateSelected(
-              x1 - xOffset,
-              y1 - yOffset,
-              x2 - xOffset,
-              y2 - yOffset
+          onSelect={(p) => {
+            if (!mergeData) return;
+            const r = getOriginalCurrentRange();
+            setTarget(
+              intoRange(
+                [
+                  p[0] - xOffset + r[0],
+                  p[1] - yOffset + r[1],
+                  p[2] - xOffset + r[0],
+                  p[3] - yOffset + r[1],
+                ],
+                [0, 0, mergeData.width - 1, mergeData.height - 1]
+              )
             );
           }}
         />
