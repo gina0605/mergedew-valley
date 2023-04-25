@@ -10,24 +10,25 @@ import {
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
 import { SelectIcon } from "./SelectIcon";
+import { intoRange } from "@/utils";
 
 export interface CanvasProps {
   title: string;
   data: ImageData | null;
   zoom: number;
-  mode: string;
   guide: string | null;
+  target: number[] | null;
   defaultSelectable?: boolean;
   onUpload: (filename: string, data: ImageData) => void;
-  onSelect: (pos1: number[], pos2: number[]) => void;
+  onSelect: (v: number[]) => void;
 }
 
 export const Canvas = ({
   title,
   data,
   zoom,
-  mode,
   guide,
+  target,
   defaultSelectable,
   onUpload,
   onSelect,
@@ -37,7 +38,7 @@ export const Canvas = ({
   const guideRef = useRef<HTMLCanvasElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [prevZoom, setPrevZoom] = useState(1);
-  const [mousePos, setMousePos] = useState<number[] | null>(null);
+  const [dotPos, setDotPos] = useState<number[] | null>(null);
   const [selectable, setSelectable] = useState(defaultSelectable);
 
   const updateCanvasZoom = (cnvs: HTMLCanvasElement) => {
@@ -96,16 +97,51 @@ export const Canvas = ({
     const cnvs = canvasRef.current as HTMLCanvasElement;
     setupCanvas(cnvs, data.width, data.height);
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
-    if (mode === "touch" && mousePos) {
-      const modifData = data.data.slice();
-      const idx = mousePos[1] * data.width + mousePos[0];
+    const modifData = data.data.slice();
+
+    const mark = (pos: number[]) => {
+      if (
+        pos[0] < 0 ||
+        pos[0] >= data.width ||
+        pos[1] < 0 ||
+        pos[1] >= data.height
+      )
+        return;
+      const idx = pos[1] * data.width + pos[0];
       modifData[idx * 4] = 255;
       modifData[idx * 4 + 1] = 0;
       modifData[idx * 4 + 2] = 0;
       modifData[idx * 4 + 3] = 255;
-      ctx.putImageData(new ImageData(modifData, data.width, data.height), 0, 0);
-    } else ctx.putImageData(data, 0, 0);
-  }, [data, mousePos]);
+    };
+
+    if (selectable) {
+      console.log(target, data.width, data.height);
+      if (target) {
+        let [x1, y1, x2, y2] = intoRange(target, [
+          0,
+          0,
+          data.width - 1,
+          data.height - 1,
+        ]);
+        for (let i = y1; i <= y2; i++)
+          for (let j = x1; j <= x2; j++) {
+            const idx = i * data.width + j;
+            modifData[idx * 4] = data.data[idx * 4] / 2;
+            modifData[idx * 4 + 1] = data.data[idx * 4 + 1] / 2;
+            modifData[idx * 4 + 2] = data.data[idx * 4 + 2] / 2;
+            modifData[idx * 4 + 3] = 127 + data.data[idx * 4 + 3] / 2;
+          }
+      }
+      if (dotPos) mark(dotPos);
+      else if (target) {
+        mark([target[0], target[1]]);
+        mark([target[0], target[3]]);
+        mark([target[2], target[1]]);
+        mark([target[2], target[3]]);
+      }
+    }
+    ctx.putImageData(new ImageData(modifData, data.width, data.height), 0, 0);
+  }, [data, dotPos, target, selectable]);
 
   useEffect(() => {
     if (!guideRef.current) return;
@@ -118,7 +154,7 @@ export const Canvas = ({
     }
   }, [guide]);
 
-  const getCoord = (e: MouseEvent | Touch) => {
+  const getCoord = (e: MouseEvent) => {
     const cnvs = canvasRef.current as HTMLCanvasElement;
     const bounding = cnvs.getBoundingClientRect();
     return [
@@ -127,20 +163,24 @@ export const Canvas = ({
     ];
   };
 
-  const onMouseUp = (e: MouseEvent) => {
-    if (mode != "drag" || mousePos === null) return;
-    onSelect(mousePos, getCoord(e));
-    setMousePos(null);
-  };
-
-  const onTouch = (e: MouseEvent) => {
-    if (mode !== "touch") return;
-    if (mousePos === null) {
-      setMousePos(getCoord(e));
-    } else {
-      onSelect(mousePos, getCoord(e));
-      setMousePos(null);
-    }
+  const onClick = (e: MouseEvent) => {
+    if (!selectable || !canvasRef.current) return;
+    const p = getCoord(e);
+    console.log(p, dotPos, target);
+    if (dotPos) {
+      onSelect([
+        Math.min(dotPos[0], p[0]),
+        Math.min(dotPos[1], p[1]),
+        Math.max(dotPos[0], p[0]),
+        Math.max(dotPos[1], p[1]),
+      ]);
+      setDotPos(null);
+    } else if (!target) setDotPos(p);
+    else if (
+      (p[0] === target[0] || p[0] === target[2]) &&
+      (p[1] === target[1] || p[1] === target[3])
+    )
+      setDotPos([target[0] + target[2] - p[0], target[1] + target[3] - p[1]]);
   };
 
   const onImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -196,12 +236,8 @@ export const Canvas = ({
         <canvas ref={guideRef} className={"absolute z-0"} />
         <canvas
           ref={canvasRef}
-          onMouseDown={
-            mode === "drag" ? (e) => setMousePos(getCoord(e)) : undefined
-          }
-          onMouseUp={onMouseUp}
-          onMouseLeave={() => setMousePos(null)}
-          onClick={onTouch}
+          onMouseLeave={() => setDotPos(null)}
+          onClick={onClick}
           className="relative z-20"
         />
       </div>
