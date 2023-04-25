@@ -7,7 +7,6 @@ import { pack } from "xnb";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
-  const [mode, setMode] = useState("drag");
   const [guide, setGuide] = useState<string | null>(null);
   const [xOffset, setXOffset] = useState(0);
   const [yOffset, setYOffset] = useState(0);
@@ -129,12 +128,10 @@ export const Body = () => {
     <div className="flex flex-col items-center space-y-2">
       <Settings
         zoom={zoom}
-        mode={mode}
         xOffset={xOffset}
         yOffset={yOffset}
         setGuide={setGuide}
         setZoom={setZoom}
-        setMode={setMode}
         setXOffset={setXOffset}
         setYOffset={setYOffset}
       />
