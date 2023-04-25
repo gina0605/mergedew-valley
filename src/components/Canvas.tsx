@@ -142,6 +142,8 @@ export const Canvas = ({
     ctx.putImageData(new ImageData(modifData, data.width, data.height), 0, 0);
   }, [data, dotPos, target, selectable]);
 
+  useEffect(() => setDotPos(null), [data, target, selectable]);
+
   useEffect(() => {
     if (!guideRef.current) return;
     const guideCanvas = guideRef.current as HTMLCanvasElement;
@@ -251,12 +253,7 @@ export const Canvas = ({
           ref={guideRef}
           className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
         />
-        <canvas
-          ref={canvasRef}
-          onMouseLeave={() => setDotPos(null)}
-          onClick={onClick}
-          className="relative z-20"
-        />
+        <canvas ref={canvasRef} onClick={onClick} className="relative z-20" />
       </div>
     </div>
   );
