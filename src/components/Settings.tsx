@@ -1,6 +1,7 @@
 import { betterParseInt } from "@/utils";
 import { useState } from "react";
 import { NumberInput } from "./NumberInput";
+import { unpackToContent } from "xnb";
 
 export interface SettingsProps {
   zoom: number;
@@ -21,8 +22,6 @@ export const Settings = ({
   setXOffset,
   setYOffset,
 }: SettingsProps) => {
-  const [guideUrl, setGuideUrl] = useState<string | null>(null);
-
   return (
     <div className="flex flex-col items-center border border-slate-300 p-2 mt-2 space-y-3 w-96 max-w-[90vw] md:px-4">
       <div className="flex space-x-4 items-center w-full">
@@ -69,13 +68,15 @@ export const Settings = ({
         <input
           type="file"
           className="w-48 grow font-pretendard text-sm truncate"
-          accept="image/*"
-          onChange={(e) => {
+          accept="image/*,.xnb"
+          onChange={async (e) => {
             if (e.target.files?.length !== 1) return;
-            if (guideUrl) URL.revokeObjectURL(guideUrl);
-            const url = URL.createObjectURL(e.target.files[0]);
-            setGuideUrl(url);
-            setGuide(url);
+            const file = e.target.files[0];
+            setGuide(
+              URL.createObjectURL(
+                file.type ? file : (await unpackToContent(file)).content
+              )
+            );
           }}
         />
       </div>

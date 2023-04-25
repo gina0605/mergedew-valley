@@ -142,7 +142,10 @@ export const Body = () => {
         zoom={zoom}
         xOffset={xOffset}
         yOffset={yOffset}
-        setGuide={setGuide}
+        setGuide={(g: string) => {
+          if (guide) URL.revokeObjectURL(guide);
+          setGuide(g);
+        }}
         setZoom={setZoom}
         setXOffset={setXOffset}
         setYOffset={setYOffset}
