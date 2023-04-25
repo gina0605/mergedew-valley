@@ -214,7 +214,7 @@ export const Canvas = ({
           onClick={() => setSelectable((v) => !v)}
         />
         <p
-          className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 ${
+          className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 prevent-select ${
             showGuide ? "text-slate-700" : "text-slate-300"
           }`}
           onClick={() => setShowGuide((x) => !x)}
