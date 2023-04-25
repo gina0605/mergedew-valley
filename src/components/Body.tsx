@@ -238,7 +238,6 @@ export const Body = () => {
           }}
           onDelete={confirmThen(() => {
             setOriginalData(null);
-            setTarget(null);
           })}
         />
       </div>
