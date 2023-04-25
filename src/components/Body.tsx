@@ -130,6 +130,12 @@ export const Body = () => {
     });
   };
 
+  const confirmThen = (f: () => void) => () => {
+    if (target) {
+      if (confirm("확정되지 않은 영역이 있습니다. 파일을 삭제할까요?")) f();
+    } else f();
+  };
+
   return (
     <div className="flex flex-col items-center space-y-2">
       <Settings
@@ -191,6 +197,10 @@ export const Body = () => {
             setMergeData(data);
           }}
           onSelect={setTarget}
+          onDelete={confirmThen(() => {
+            setMergeData(null);
+            setTarget(null);
+          })}
         />
         <Canvas
           title={`원본 파일 ${originalName}`}
@@ -226,6 +236,10 @@ export const Body = () => {
               )
             );
           }}
+          onDelete={confirmThen(() => {
+            setOriginalData(null);
+            setTarget(null);
+          })}
         />
       </div>
     </div>

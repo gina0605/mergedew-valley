@@ -20,6 +20,7 @@ export interface CanvasProps {
   defaultSelectable?: boolean;
   onUpload: (filename: string, data: ImageData) => void;
   onSelect: (v: number[]) => void;
+  onDelete: () => void;
 }
 
 export const Canvas = ({
@@ -31,6 +32,7 @@ export const Canvas = ({
   defaultSelectable,
   onUpload,
   onSelect,
+  onDelete,
 }: CanvasProps) => {
   const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -220,6 +222,16 @@ export const Canvas = ({
           G
         </p>
         <p className="font-pretendard overflow-truncate grow">{title}</p>
+        {data && (
+          <NextImage
+            src="/assets/icon-x.svg"
+            alt="X"
+            width="18"
+            height="18"
+            className="cursor-pointer"
+            onClick={onDelete}
+          />
+        )}
       </div>
       <div
         ref={scrollerRef}
