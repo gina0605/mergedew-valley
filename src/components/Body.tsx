@@ -20,19 +20,26 @@ export const Body = () => {
   );
   const [warning, setWarning] = useState<string | null>(null);
 
+  const getOriginalCurrentRange = () => {
+    if (!originalData) return [0, 0, 0, 0];
+    if (!target) return [0, 0, originalData.width, originalData.height];
+    let [tx1, ty1, tx2, ty2] = target;
+    return [
+      Math.min(0, tx1 + xOffset),
+      Math.min(0, ty1 + yOffset),
+      Math.max(originalData.width, tx2 + xOffset),
+      Math.max(originalData.height, ty2 + yOffset),
+    ];
+  };
+
   const createOriginalCurrent = (gray: boolean) => {
     if (originalData === null || mergeData === null || target === null)
       return originalData;
 
-    let [sx1, sy1, sx2, sy2] = target;
-
-    let x1 = Math.min(0, sx1 + xOffset),
-      y1 = Math.min(0, sy1 + yOffset),
-      x2 = Math.max(originalData.width, sx2 + xOffset + 1),
-      y2 = Math.max(originalData.height, sy2 + yOffset + 1);
+    let [x1, y1, x2, y2] = getOriginalCurrentRange();
 
     const isTarget = (x: number, y: number) =>
-      sx1 <= x && x <= sx2 && sy1 <= y && y <= sy2;
+      target[0] <= x && x <= target[2] && target[1] <= y && y <= target[3];
 
     const d = Array((x2 - x1) * (y2 - y1) * 4).fill(0);
     for (let i = y1; i < y2; i++)
@@ -175,33 +182,34 @@ export const Body = () => {
           data={originalCurrent}
           zoom={zoom}
           guide={guide}
-          target={
-            target
-              ? [
-                  target[0] + xOffset,
-                  target[1] + yOffset,
-                  target[2] + xOffset,
-                  target[3] + yOffset,
-                ]
-              : null
-          }
+          target={(() => {
+            if (!target) return null;
+            const r = getOriginalCurrentRange();
+            return [
+              target[0] + xOffset - r[0],
+              target[1] + yOffset - r[1],
+              target[2] + xOffset - r[0],
+              target[3] + yOffset - r[1],
+            ];
+          })()}
           onUpload={(filename, data) => {
             setOriginalName(filename);
             setOriginalData(data);
           }}
           onSelect={(p) => {
-            if (mergeData)
-              setTarget(
-                intoRange(
-                  [
-                    p[0] - xOffset,
-                    p[1] - yOffset,
-                    p[2] - xOffset,
-                    p[3] - yOffset,
-                  ],
-                  [0, 0, mergeData.width - 1, mergeData.height - 1]
-                )
-              );
+            if (!mergeData) return;
+            const r = getOriginalCurrentRange();
+            setTarget(
+              intoRange(
+                [
+                  p[0] - xOffset + r[0],
+                  p[1] - yOffset + r[1],
+                  p[2] - xOffset + r[0],
+                  p[3] - yOffset + r[1],
+                ],
+                [0, 0, mergeData.width - 1, mergeData.height - 1]
+              )
+            );
           }}
         />
       </div>
