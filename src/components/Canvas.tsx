@@ -95,6 +95,7 @@ export const Canvas = ({
   }, [zoom]);
 
   useEffect(() => {
+    scrollerRef.current?.scrollTo(0, 0);
     if (!canvasRef.current || !data) return;
     const cnvs = canvasRef.current as HTMLCanvasElement;
     setupCanvas(cnvs, data.width, data.height);
