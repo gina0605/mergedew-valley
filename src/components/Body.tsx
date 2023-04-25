@@ -225,6 +225,7 @@ export const Body = () => {
           zoom={zoom}
           mode={mode}
           guide={guide}
+          defaultSelectable
           onUpload={(filename, data) => {
             setMergeName(filename);
             setMergeData(data);

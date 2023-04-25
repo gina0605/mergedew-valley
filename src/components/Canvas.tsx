@@ -9,6 +9,7 @@ import {
 } from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
+import { SelectIcon } from "./SelectIcon";
 
 export interface CanvasProps {
   title: string;
@@ -16,6 +17,7 @@ export interface CanvasProps {
   zoom: number;
   mode: string;
   guide: string | null;
+  defaultSelectable?: boolean;
   onUpload: (filename: string, data: ImageData) => void;
   onSelect: (pos1: number[], pos2: number[]) => void;
 }
@@ -26,6 +28,7 @@ export const Canvas = ({
   zoom,
   mode,
   guide,
+  defaultSelectable,
   onUpload,
   onSelect,
 }: CanvasProps) => {
@@ -35,7 +38,7 @@ export const Canvas = ({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [prevZoom, setPrevZoom] = useState(1);
   const [mousePos, setMousePos] = useState<number[] | null>(null);
-  const [showGuide, setShowGuide] = useState(false);
+  const [selectable, setSelectable] = useState(defaultSelectable);
 
   const updateCanvasZoom = (cnvs: HTMLCanvasElement) => {
     cnvs.style.width = `${cnvs.width * zoom}px`;
@@ -107,14 +110,11 @@ export const Canvas = ({
   useEffect(() => {
     if (!guideRef.current) return;
     if (guide) {
-      setShowGuide(true);
       const img = new Image();
       img.src = guide;
       img.addEventListener("load", () => {
         drawImage(guideRef.current as HTMLCanvasElement, img);
       });
-    } else {
-      setShowGuide(false);
     }
   }, [guide]);
 
@@ -158,15 +158,11 @@ export const Canvas = ({
 
   return (
     <div className="flex flex-col w-[90vw] md:w-[40vw]">
-      <div className="flex space-x-1 w-full">
-        <p
-          className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 ${
-            showGuide ? "text-black" : "text-slate-300"
-          }`}
-          onClick={() => setShowGuide((x) => !x)}
-        >
-          G
-        </p>
+      <div className="flex space-x-2 w-full items-center">
+        <SelectIcon
+          value={selectable ?? false}
+          onClick={() => setSelectable((v) => !v)}
+        />
         <p className="font-pretendard overflow-truncate grow">{title}</p>
       </div>
       <div
@@ -197,10 +193,7 @@ export const Canvas = ({
             />
           </>
         )}
-        <canvas
-          ref={guideRef}
-          className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
-        />
+        <canvas ref={guideRef} className={"absolute z-0"} />
         <canvas
           ref={canvasRef}
           onMouseDown={
