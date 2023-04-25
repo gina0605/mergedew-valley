@@ -95,7 +95,6 @@ export const Canvas = ({
   }, [zoom]);
 
   useEffect(() => {
-    scrollerRef.current?.scrollTo(0, 0);
     if (!canvasRef.current || !data) return;
     const cnvs = canvasRef.current as HTMLCanvasElement;
     setupCanvas(cnvs, data.width, data.height);
@@ -146,6 +145,10 @@ export const Canvas = ({
   }, [data, dotPos, target, selectable]);
 
   useEffect(() => setDotPos(null), [data, target, selectable]);
+
+  useEffect(() => {
+    if (!data) scrollerRef.current?.scrollTo(0, 0);
+  }, [data]);
 
   useEffect(() => {
     if (!guideRef.current) return;
