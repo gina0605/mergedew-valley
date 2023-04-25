@@ -40,6 +40,7 @@ export const Canvas = ({
   const [prevZoom, setPrevZoom] = useState(1);
   const [dotPos, setDotPos] = useState<number[] | null>(null);
   const [selectable, setSelectable] = useState(defaultSelectable);
+  const [showGuide, setShowGuide] = useState(false);
 
   const updateCanvasZoom = (cnvs: HTMLCanvasElement) => {
     cnvs.style.width = `${cnvs.width * zoom}px`;
@@ -146,12 +147,14 @@ export const Canvas = ({
     if (!guideRef.current) return;
     const guideCanvas = guideRef.current as HTMLCanvasElement;
     if (guide) {
+      setShowGuide(true);
       const img = new Image();
       img.src = guide;
       img.addEventListener("load", () => {
         drawImage(guideCanvas, img);
       });
     } else {
+      setShowGuide(false);
       guideCanvas.width = 0;
       guideCanvas.height = 0;
       guideCanvas.style.width = "0";
@@ -202,11 +205,19 @@ export const Canvas = ({
 
   return (
     <div className="flex flex-col w-[90vw] md:w-[40vw]">
-      <div className="flex space-x-2 w-full items-center">
+      <div className="flex w-full items-center">
         <SelectIcon
           value={selectable ?? false}
           onClick={() => setSelectable((v) => !v)}
         />
+        <p
+          className={`font-omyu w-6 h-6 font-black cursor-pointer text-lg text-center mb-0.5 -mt-0.5 ${
+            showGuide ? "text-slate-700" : "text-slate-300"
+          }`}
+          onClick={() => setShowGuide((x) => !x)}
+        >
+          G
+        </p>
         <p className="font-pretendard overflow-truncate grow">{title}</p>
       </div>
       <div
@@ -237,7 +248,10 @@ export const Canvas = ({
             />
           </>
         )}
-        <canvas ref={guideRef} className={"absolute z-0"} />
+        <canvas
+          ref={guideRef}
+          className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
+        />
         <canvas
           ref={canvasRef}
           onMouseLeave={() => setDotPos(null)}
