@@ -160,7 +160,7 @@ export const Body = () => {
             />
             <Button
               text="영역 선택 취소"
-              disabled={originalData === null || mergeData === null}
+              disabled={mergeData === null}
               onClick={() => setTarget(null)}
             />
           </>
