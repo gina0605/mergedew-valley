@@ -115,7 +115,6 @@ export const Canvas = ({
     };
 
     if (selectable) {
-      console.log(target, data.width, data.height);
       if (target) {
         let [x1, y1, x2, y2] = intoRange(target, [
           0,
@@ -145,12 +144,18 @@ export const Canvas = ({
 
   useEffect(() => {
     if (!guideRef.current) return;
+    const guideCanvas = guideRef.current as HTMLCanvasElement;
     if (guide) {
       const img = new Image();
       img.src = guide;
       img.addEventListener("load", () => {
-        drawImage(guideRef.current as HTMLCanvasElement, img);
+        drawImage(guideCanvas, img);
       });
+    } else {
+      guideCanvas.width = 0;
+      guideCanvas.height = 0;
+      guideCanvas.style.width = "0";
+      guideCanvas.style.height = "0";
     }
   }, [guide]);
 
@@ -166,7 +171,6 @@ export const Canvas = ({
   const onClick = (e: MouseEvent) => {
     if (!selectable || !canvasRef.current) return;
     const p = getCoord(e);
-    console.log(p, dotPos, target);
     if (dotPos) {
       onSelect([
         Math.min(dotPos[0], p[0]),
