@@ -4,7 +4,6 @@ import {
   useRef,
   useState,
   MouseEvent,
-  Touch,
   ChangeEvent,
 } from "react";
 import { default as NextImage } from "next/image";

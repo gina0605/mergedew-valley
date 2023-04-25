@@ -2,7 +2,7 @@ import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
-import { array2d, intoRange } from "@/utils";
+import { intoRange } from "@/utils";
 import { pack } from "xnb";
 
 export const Body = () => {
