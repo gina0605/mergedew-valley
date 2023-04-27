@@ -202,6 +202,7 @@ export const Body = () => {
           onSelect={setTarget}
           onDelete={confirmThen(() => {
             setMergeData(null);
+            setMergeName("");
             setTarget(null);
           })}
         />
@@ -241,6 +242,7 @@ export const Body = () => {
           }}
           onDelete={confirmThen(() => {
             setOriginalData(null);
+            setOriginalName("");
           })}
         />
       </div>
