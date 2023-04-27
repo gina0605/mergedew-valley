@@ -8,8 +8,8 @@ import {
 } from "react";
 import { default as NextImage } from "next/image";
 import { unpackToContent } from "xnb";
-import { SelectIcon } from "./SelectIcon";
 import { intoRange } from "@/utils";
+import { SelectIcon } from "./SelectIcon";
 
 export interface CanvasProps {
   title: string;

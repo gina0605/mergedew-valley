@@ -1,7 +1,6 @@
-import { betterParseInt } from "@/utils";
-import { useState } from "react";
-import { NumberInput } from "./NumberInput";
 import { unpackToContent } from "xnb";
+import { betterParseInt } from "@/utils";
+import { NumberInput } from "./NumberInput";
 
 export interface SettingsProps {
   zoom: number;

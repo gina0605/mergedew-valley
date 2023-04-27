@@ -1,5 +1,5 @@
-import { betterParseInt } from "@/utils";
 import { useEffect, useState } from "react";
+import { betterParseInt } from "@/utils";
 
 export interface NumberInputProps {
   className: string;

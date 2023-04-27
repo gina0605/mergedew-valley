@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
+import { pack } from "xnb";
+import { intoRange } from "@/utils";
 import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
-import { useEffect, useState } from "react";
 import { Button } from "./Button";
-import { intoRange } from "@/utils";
-import { pack } from "xnb";
 
 export const Body = () => {
   const [zoom, setZoom] = useState(1);
