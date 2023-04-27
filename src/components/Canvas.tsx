@@ -151,8 +151,8 @@ export const Canvas = ({
   }, [data]);
 
   useEffect(() => {
-    if (!guideRef.current) return;
-    const guideCanvas = guideRef.current as HTMLCanvasElement;
+    const guideCanvas = guideRef.current;
+    if (!guideCanvas) return;
     if (guide) {
       setShowGuide(true);
       const img = new Image();
