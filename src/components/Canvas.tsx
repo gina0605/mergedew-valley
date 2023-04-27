@@ -190,11 +190,20 @@ export const Canvas = ({
       ]);
       setDotPos(null);
     } else if (!target) setDotPos(p);
-    else if (
-      (p[0] === target[0] || p[0] === target[2]) &&
-      (p[1] === target[1] || p[1] === target[3])
-    )
-      setDotPos([target[0] + target[2] - p[0], target[1] + target[3] - p[1]]);
+    else {
+      if (
+        Math.min(Math.abs(p[0] - target[0]), Math.abs(p[0] - target[2])) *
+          zoom <=
+          10 &&
+        Math.min(Math.abs(p[1] - target[1]), Math.abs(p[1] - target[3])) *
+          zoom <=
+          10
+      )
+        setDotPos([
+          p[0] <= (target[0] + target[2]) / 2 ? target[2] : target[0],
+          p[1] <= (target[1] + target[3]) / 2 ? target[3] : target[1],
+        ]);
+    }
   };
 
   const onImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
