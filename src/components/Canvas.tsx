@@ -248,7 +248,7 @@ export const Canvas = ({
       </div>
       <div
         ref={scrollerRef}
-        className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative ${
+        className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain ${
           data === null ? "overflow-hidden" : "overflow-scroll"
         }`}
       >
