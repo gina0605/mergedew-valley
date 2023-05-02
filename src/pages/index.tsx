@@ -9,6 +9,15 @@ const Home = () => (
     </Head>
     <Header />
     <Body />
+    <p className="w-full text-center text-xs text-slate-400 mb-2">
+      mergedew-valley v1.0.0&nbsp;&nbsp;|&nbsp;&nbsp;
+      <a
+        href="https://github.com/gina0605/mergedew-valley"
+        className="underline decoration-1"
+      >
+        Github
+      </a>
+    </p>
   </main>
 );
 
