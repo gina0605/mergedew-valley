@@ -5,9 +5,8 @@ export const array2d = (h: number, w: number, x: any) =>
 
 export const betterParseInt = (x: string) => (x === "" ? 0 : parseInt(x));
 
-export const intoRange = (p: number[], r: number[]) => [
-  Math.max(p[0], r[0]),
-  Math.max(p[1], r[1]),
-  Math.min(p[2], r[2]),
-  Math.min(p[3], r[3]),
-];
+export const intoRange = (p: number[], r: number[]) => {
+  const xFix = (x: number) => Math.max(Math.min(x, r[2]), r[0]);
+  const yFix = (x: number) => Math.max(Math.min(x, r[3]), r[1]);
+  return [xFix(p[0]), yFix(p[1]), xFix(p[2]), yFix(p[3])];
+};
