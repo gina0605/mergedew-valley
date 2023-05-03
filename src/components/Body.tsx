@@ -228,17 +228,23 @@ export const Body = () => {
           onSelect={(p) => {
             if (!mergeData) return;
             const r = getOriginalCurrentRange();
-            setTarget(
-              intoRange(
-                [
-                  p[0] - xOffset + r[0],
-                  p[1] - yOffset + r[1],
-                  p[2] - xOffset + r[0],
-                  p[3] - yOffset + r[1],
-                ],
-                [0, 0, mergeData.width - 1, mergeData.height - 1]
-              )
-            );
+            const q = [
+              p[0] - xOffset + r[0],
+              p[1] - yOffset + r[1],
+              p[2] - xOffset + r[0],
+              p[3] - yOffset + r[1],
+            ];
+            if (
+              q[0] >= mergeData.width ||
+              q[1] >= mergeData.height ||
+              q[2] < 0 ||
+              q[3] < 0
+            )
+              alert("병합용 이미지와 겹치는 범위를 선택해주세요.");
+            else
+              setTarget(
+                intoRange(q, [0, 0, mergeData.width - 1, mergeData.height - 1])
+              );
           }}
           onDelete={confirmThen(() => {
             setOriginalData(null);
