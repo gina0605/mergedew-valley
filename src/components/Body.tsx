@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { pack } from "xnb";
+import { pack } from "../xnb/xnb";
 import { intoRange } from "@/utils";
 import { Settings } from "./Settings";
 import { Canvas } from "./Canvas";
@@ -118,15 +118,14 @@ export const Body = () => {
   const onXnbDownload = async () => {
     const cnvs = drawResult();
     if (cnvs === null) return;
-    cnvs.toBlob((b) => {
+    cnvs.toBlob(async (b) => {
       if (b === null) return;
       const file = new File([b], getFileName("png"));
       const dt = new DataTransfer();
       dt.items.add(file);
-      pack(dt.files).then((r: any) => {
-        if (r.length !== 1) console.log("something went wrong");
-        downloadFile(URL.createObjectURL(r[0].data), getFileName("xnb"));
-      });
+      const r = await pack(dt.files);
+      if (r.length !== 1) console.log("something went wrong");
+      downloadFile(URL.createObjectURL(r[0].data), getFileName("xnb"));
     });
   };
 

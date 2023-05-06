@@ -1,6 +1,6 @@
-import { unpackToContent } from "xnb";
 import { betterParseInt } from "@/utils";
 import { NumberInput } from "./NumberInput";
+import { unpack } from "../unpack";
 
 export interface SettingsProps {
   zoom: number;
@@ -71,11 +71,13 @@ export const Settings = ({
           onChange={async (e) => {
             if (e.target.files?.length !== 1) return;
             const file = e.target.files[0];
-            setGuide(
-              URL.createObjectURL(
-                file.type ? file : (await unpackToContent(file)).content
-              )
-            );
+            try {
+              setGuide(
+                URL.createObjectURL(file.type ? file : await unpack(file))
+              );
+            } catch (e) {
+              alert("파일 읽기에 실패했습니다.");
+            }
           }}
         />
       </div>
