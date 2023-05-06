@@ -1962,6 +1962,7 @@ class XnbConverter {
       throw new XnbError("Unexpected (".concat(shared, ") shared resources."));
     const content = new ReaderResolver(this.readers);
     const result = content.read(this.buffer);
+    result.export.type = "Texture2D";
     console.log("Successfuly read XNB file!");
     return new XnbData(
       {
