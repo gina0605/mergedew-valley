@@ -7,7 +7,7 @@ import {
   ChangeEvent,
 } from "react";
 import { default as NextImage } from "next/image";
-import { unpackToContent } from "../xnb/xnb";
+import { unpack } from "../unpack";
 import { intoRange } from "@/utils";
 import { SelectIcon } from "./SelectIcon";
 
@@ -212,7 +212,7 @@ export const Canvas = ({
     try {
       const img = new Image();
       img.src = URL.createObjectURL(
-        file.type === "image/png" ? file : (await unpackToContent(file)).content
+        file.type === "image/png" ? file : await unpack(file)
       );
       img.addEventListener("load", () => {
         const ctx = drawImage(canvasRef.current as HTMLCanvasElement, img);
