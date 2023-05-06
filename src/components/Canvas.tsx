@@ -209,15 +209,18 @@ export const Canvas = ({
   const onImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length !== 1 || !canvasRef.current) return;
     const file = e.target.files[0];
-    const img = new Image();
-    img.src = URL.createObjectURL(
-      file.type === "image/png" ? file : (await unpackToContent(file)).content
-    );
-    console.log(await unpackToContent(file));
-    img.addEventListener("load", () => {
-      const ctx = drawImage(canvasRef.current as HTMLCanvasElement, img);
-      onUpload(file.name, ctx.getImageData(0, 0, img.width, img.height));
-    });
+    try {
+      const img = new Image();
+      img.src = URL.createObjectURL(
+        file.type === "image/png" ? file : (await unpackToContent(file)).content
+      );
+      img.addEventListener("load", () => {
+        const ctx = drawImage(canvasRef.current as HTMLCanvasElement, img);
+        onUpload(file.name, ctx.getImageData(0, 0, img.width, img.height));
+      });
+    } catch (e) {
+      alert("파일 읽기에 실패했습니다.");
+    }
   };
 
   return (
