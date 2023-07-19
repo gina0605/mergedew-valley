@@ -238,7 +238,7 @@ export const Canvas = ({
         >
           G
         </p>
-        <p className="font-pretendard overflow-truncate grow">{title}</p>
+        <p className="font-pretendard truncate grow">{title}</p>
         {data && (
           <NextImage
             src="/assets/icon-x.svg"
