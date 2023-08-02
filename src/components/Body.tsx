@@ -10,6 +10,7 @@ export const Body = () => {
   const [guide, setGuide] = useState<string | null>(null);
   const [xOffset, setXOffset] = useState(0);
   const [yOffset, setYOffset] = useState(0);
+  const [scale, setScale] = useState(1);
   const [mergeName, setMergeName] = useState("");
   const [mergeData, setMergeData] = useState<ImageData | null>(null);
   const [originalName, setOriginalName] = useState("");
@@ -71,7 +72,7 @@ export const Body = () => {
 
   useEffect(() => {
     setOriginalCurrent(createOriginalCurrent());
-  }, [mergeData, originalData, target, xOffset, yOffset]);
+  }, [mergeData, originalData, target, xOffset, yOffset, scale]);
 
   useEffect(() => {
     if (!originalData || !originalCurrent) setWarning(null);
@@ -99,10 +100,30 @@ export const Body = () => {
 
   const drawResult = () => {
     if (originalData === null) return null;
+
+    const getDataScaled = (data: ImageData, scale: number) => {
+      if (scale === 1) return data;
+      const nw = Math.round(data.width * scale);
+      const nh = Math.round(data.height * scale);
+      const d = Array(nw * nh * 4).fill(0);
+      for (let i = 0; i < nh; i += 1)
+        for (let j = 0; j < nw; j += 1)
+          for (let k = 0; k < 4; k += 1)
+            d[i * nw * 4 + j * 4 + k] =
+              data.data[
+                Math.floor(i / scale) * data.width * 4 +
+                  Math.floor(j / scale) * 4 +
+                  k
+              ];
+      const uintc8 = new Uint8ClampedArray(d);
+      return new ImageData(uintc8, nw, nh);
+    };
+
     const cnvs = document.createElement("canvas");
-    cnvs.width = originalData.width;
-    cnvs.height = originalData.height;
-    cnvs.getContext("2d")?.putImageData(originalData, 0, 0);
+    const data = getDataScaled(originalData, scale);
+    cnvs.width = data.width;
+    cnvs.height = data.height;
+    cnvs.getContext("2d")?.putImageData(data, 0, 0);
     return cnvs;
   };
 
@@ -148,6 +169,7 @@ export const Body = () => {
         setZoom={setZoom}
         setXOffset={setXOffset}
         setYOffset={setYOffset}
+        setScale={setScale}
       />
       <div className="flex space-x-4">
         {target ? (
