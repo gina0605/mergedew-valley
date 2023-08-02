@@ -16,6 +16,14 @@ const Home = () => {
       </Head>
       <Header />
       <Body />
+      <p className="w-full text-center text-xs text-slate-400 mb-2">
+        <a
+          href="https://github.com/gina0605/mergedew-valley"
+          className="underline decoration-1"
+        >
+          Github
+        </a>
+      </p>
     </main>
   );
 };
