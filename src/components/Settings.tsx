@@ -23,7 +23,7 @@ const ScaleSettings = ({ setScale }: ScaleSettingsProps) => {
   return (
     <div className="flex space-x-4 w-full items-center">
       <p className="h-6 leading-6 font-pretendard shrink-0">
-        다운로드 시 파일 배율
+        다운로드 시 파일 크기
       </p>
       <div className="flex flex-col space-y-1 md:flex-row md:space-x-2 md:space-y-0">
         <select
