@@ -62,11 +62,18 @@ export const Canvas = ({
     return ctx;
   };
 
-  const zoomScroll = () => {
+  const getCenter = () => {
     const scroller = scrollerRef.current;
-    if (!scroller) return;
+    if (!scroller) return null;
     const xCenter = (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
     const yCenter = (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
+    return [xCenter, yCenter];
+  };
+
+  const zoomScroll = (centerCoord: number[] | null) => {
+    const scroller = scrollerRef.current;
+    if (!scroller || !centerCoord) return;
+    const [xCenter, yCenter] = centerCoord;
     const xScroll = Math.max(
       0,
       Math.min(
@@ -87,9 +94,10 @@ export const Canvas = ({
   useEffect(() => {
     if (!canvasRef.current || !guideRef.current) return;
     if (data !== null) {
+      const centerCoord = getCenter();
       updateCanvasZoom(canvasRef.current);
       updateCanvasZoom(guideRef.current);
-      zoomScroll();
+      zoomScroll(centerCoord);
       setPrevZoom(zoom);
     }
   }, [zoom]);
