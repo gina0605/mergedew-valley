@@ -8,7 +8,7 @@ import {
 } from "react";
 import { default as NextImage } from "next/image";
 import { unpack } from "../unpack";
-import { intoRange } from "@/utils";
+import { intoRange, minmax } from "@/utils";
 import { SelectIcon } from "./SelectIcon";
 
 export interface CanvasProps {
@@ -74,19 +74,15 @@ export const Canvas = ({
     const scroller = scrollerRef.current;
     if (!scroller || !centerCoord) return;
     const [xCenter, yCenter] = centerCoord;
-    const xScroll = Math.max(
-      0,
-      Math.min(
-        xCenter * zoom - scroller.clientWidth / 2,
-        scroller.scrollWidth - scroller.clientWidth
-      )
+    const xScroll = minmax(
+      xCenter * zoom - scroller.clientWidth / 2,
+      scroller.scrollWidth - scroller.clientWidth,
+      0
     );
-    const yScroll = Math.max(
-      0,
-      Math.min(
-        yCenter * zoom - scroller.clientHeight / 2,
-        scroller.scrollHeight - scroller.clientHeight
-      )
+    const yScroll = minmax(
+      yCenter * zoom - scroller.clientHeight / 2,
+      scroller.scrollHeight - scroller.clientHeight,
+      0
     );
     scroller.scrollTo(xScroll, yScroll);
   };
