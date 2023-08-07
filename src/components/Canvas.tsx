@@ -185,8 +185,8 @@ export const Canvas = ({
     const cnvs = canvasRef.current as HTMLCanvasElement;
     const bounding = cnvs.getBoundingClientRect();
     return [
-      Math.floor((e.clientX - bounding.left) / zoom),
-      Math.floor((e.clientY - bounding.top) / zoom),
+      Math.floor(minmax(e.clientX - bounding.left, bounding.width, 0) / zoom),
+      Math.floor(minmax(e.clientY - bounding.top, bounding.height, 0) / zoom),
     ];
   };
 
