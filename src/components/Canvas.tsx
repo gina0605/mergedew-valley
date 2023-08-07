@@ -100,8 +100,13 @@ export const Canvas = ({
   }, [zoom]);
 
   useEffect(() => {
-    if (!canvasRef.current || !data) return;
+    if (!canvasRef.current) return;
     const cnvs = canvasRef.current as HTMLCanvasElement;
+    if (!data) {
+      cnvs.width = cnvs.height = 0;
+      cnvs.style.width = cnvs.style.height = "0px";
+      return;
+    }
     setupCanvas(cnvs, data.width, data.height);
     const ctx = cnvs.getContext("2d") as CanvasRenderingContext2D;
     const modifData = data.data.slice();
@@ -266,9 +271,7 @@ export const Canvas = ({
       <ScrollSyncPane>
         <div
           ref={scrollerRef}
-          className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain ${
-            data === null ? "overflow-hidden" : "overflow-scroll"
-          }`}
+          className="border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain overflow-scroll"
         >
           {data === null && (
             <>
