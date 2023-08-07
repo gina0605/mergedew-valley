@@ -50,9 +50,12 @@ const ScaleSettings = ({ setScale }: ScaleSettingsProps) => {
 };
 
 export interface SettingsProps {
+  scrollSync: boolean;
+  scrollSyncable: boolean;
   zoom: number;
   xOffset: number;
   yOffset: number;
+  setScrollSync: (x: boolean) => void;
   setZoom: (x: number) => void;
   setGuide: (x: string) => void;
   setXOffset: (x: number) => void;
@@ -61,9 +64,12 @@ export interface SettingsProps {
 }
 
 export const Settings = ({
+  scrollSync,
+  scrollSyncable,
   zoom,
   xOffset,
   yOffset,
+  setScrollSync,
   setZoom,
   setGuide,
   setXOffset,
@@ -92,6 +98,16 @@ export const Settings = ({
         />
       </div>
       <ScaleSettings setScale={setScale} />
+      <div className="flex w-full space-x-2">
+        <input
+          type="checkbox"
+          checked={scrollSync}
+          disabled={!scrollSyncable}
+          id="scrollSync"
+          onChange={(e) => setScrollSync(e.target.checked)}
+        />
+        <label htmlFor="scrollSync">스크롤 동기화</label>
+      </div>
       <div className="flex space-x-4 items-center w-full">
         <p className="align-middle h-6 leading-6 font-pretendard shrink-0">
           확대

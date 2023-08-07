@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ScrollSync } from "react-scroll-sync";
 import { pack } from "../xnb/xnb";
 import { intoRange } from "@/utils";
 import { Settings } from "./Settings";
@@ -6,6 +7,7 @@ import { Canvas } from "./Canvas";
 import { Button } from "./Button";
 
 export const Body = () => {
+  const [scrollSync, setScrollSync] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [guide, setGuide] = useState<string | null>(null);
   const [xOffset, setXOffset] = useState(0);
@@ -153,6 +155,15 @@ export const Body = () => {
     else setAutoFix(getDataRange(mergeData, target));
   }, [mergeData, target]);
 
+  useEffect(() => {
+    setScrollSync(
+      !!mergeData &&
+        !!originalCurrent &&
+        mergeData.width === originalCurrent.width &&
+        mergeData.height === originalCurrent.height
+    );
+  }, [mergeData, originalCurrent]);
+
   const downloadFile = (href: string, filename: string) => {
     const a = document.createElement("a");
     a.href = href;
@@ -223,14 +234,22 @@ export const Body = () => {
   return (
     <div className="flex flex-col items-center space-y-2">
       <Settings
+        scrollSync={scrollSync}
+        scrollSyncable={
+          !!mergeData &&
+          !!originalCurrent &&
+          mergeData.width === originalCurrent.width &&
+          mergeData.height === originalCurrent.height
+        }
         zoom={zoom}
         xOffset={xOffset}
         yOffset={yOffset}
+        setScrollSync={setScrollSync}
+        setZoom={setZoom}
         setGuide={(g: string) => {
           if (guide) URL.revokeObjectURL(guide);
           setGuide(g);
         }}
-        setZoom={setZoom}
         setXOffset={setXOffset}
         setYOffset={setYOffset}
         setScale={setScale}
@@ -293,71 +312,78 @@ export const Body = () => {
           {warning}
         </p>
       )}
-      <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 py-2">
-        <Canvas
-          title={`병합용 파일 ${mergeName}`}
-          data={mergeData}
-          zoom={zoom}
-          guide={guide}
-          target={target}
-          defaultSelectable
-          onUpload={(filename, data) => {
-            setMergeName(filename);
-            setMergeData(data);
-          }}
-          onSelect={setTarget}
-          onDelete={confirmThen(() => {
-            setMergeData(null);
-            setMergeName("");
-            setTarget(null);
-          })}
-        />
-        <Canvas
-          title={`원본 파일 ${originalName}`}
-          data={originalCurrent}
-          zoom={zoom}
-          guide={guide}
-          target={(() => {
-            if (!target) return null;
-            const r = getOriginalCurrentRange();
-            return [
-              target[0] + xOffset - r[0],
-              target[1] + yOffset - r[1],
-              target[2] + xOffset - r[0],
-              target[3] + yOffset - r[1],
-            ];
-          })()}
-          onUpload={(filename, data) => {
-            setOriginalName(filename);
-            setOriginalData(data);
-          }}
-          onSelect={(p) => {
-            if (!mergeData) return;
-            const r = getOriginalCurrentRange();
-            const q = [
-              p[0] - xOffset + r[0],
-              p[1] - yOffset + r[1],
-              p[2] - xOffset + r[0],
-              p[3] - yOffset + r[1],
-            ];
-            if (
-              q[0] >= mergeData.width ||
-              q[1] >= mergeData.height ||
-              q[2] < 0 ||
-              q[3] < 0
-            )
-              alert("병합용 이미지와 겹치는 범위를 선택해주세요.");
-            else
-              setTarget(
-                intoRange(q, [0, 0, mergeData.width - 1, mergeData.height - 1])
-              );
-          }}
-          onDelete={confirmThen(() => {
-            setOriginalData(null);
-            setOriginalName("");
-          })}
-        />
-      </div>
+      <ScrollSync enabled={scrollSync}>
+        <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 py-2">
+          <Canvas
+            title={`병합용 파일 ${mergeName}`}
+            data={mergeData}
+            zoom={zoom}
+            guide={guide}
+            target={target}
+            defaultSelectable
+            onUpload={(filename, data) => {
+              setMergeName(filename);
+              setMergeData(data);
+            }}
+            onSelect={setTarget}
+            onDelete={confirmThen(() => {
+              setMergeData(null);
+              setMergeName("");
+              setTarget(null);
+            })}
+          />
+          <Canvas
+            title={`원본 파일 ${originalName}`}
+            data={originalCurrent}
+            zoom={zoom}
+            guide={guide}
+            target={(() => {
+              if (!target) return null;
+              const r = getOriginalCurrentRange();
+              return [
+                target[0] + xOffset - r[0],
+                target[1] + yOffset - r[1],
+                target[2] + xOffset - r[0],
+                target[3] + yOffset - r[1],
+              ];
+            })()}
+            onUpload={(filename, data) => {
+              setOriginalName(filename);
+              setOriginalData(data);
+            }}
+            onSelect={(p) => {
+              if (!mergeData) return;
+              const r = getOriginalCurrentRange();
+              const q = [
+                p[0] - xOffset + r[0],
+                p[1] - yOffset + r[1],
+                p[2] - xOffset + r[0],
+                p[3] - yOffset + r[1],
+              ];
+              if (
+                q[0] >= mergeData.width ||
+                q[1] >= mergeData.height ||
+                q[2] < 0 ||
+                q[3] < 0
+              )
+                alert("병합용 이미지와 겹치는 범위를 선택해주세요.");
+              else
+                setTarget(
+                  intoRange(q, [
+                    0,
+                    0,
+                    mergeData.width - 1,
+                    mergeData.height - 1,
+                  ])
+                );
+            }}
+            onDelete={confirmThen(() => {
+              setOriginalData(null);
+              setOriginalName("");
+            })}
+          />
+        </div>
+      </ScrollSync>
     </div>
   );
 };

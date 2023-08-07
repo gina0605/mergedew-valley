@@ -10,6 +10,7 @@ import { default as NextImage } from "next/image";
 import { unpack } from "../unpack";
 import { intoRange, minmax } from "@/utils";
 import { SelectIcon } from "./SelectIcon";
+import { ScrollSyncPane } from "react-scroll-sync";
 
 export interface CanvasProps {
   title: string;
@@ -262,40 +263,42 @@ export const Canvas = ({
           />
         )}
       </div>
-      <div
-        ref={scrollerRef}
-        className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain ${
-          data === null ? "overflow-hidden" : "overflow-scroll"
-        }`}
-      >
-        {data === null && (
-          <>
-            <label htmlFor={inputId}>
-              <div className="w-full h-full flex items-center justify-center cursor-pointer">
-                <NextImage
-                  src="/assets/icon-plus.svg"
-                  alt="add button"
-                  width="36"
-                  height="36"
-                />
-              </div>
-            </label>
-            <input
-              id={inputId}
-              type="file"
-              name="merge-image"
-              accept="image/png,.xnb"
-              className="hidden"
-              onChange={onImageUpload}
-            />
-          </>
-        )}
-        <canvas
-          ref={guideRef}
-          className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
-        />
-        <canvas ref={canvasRef} onClick={onClick} className="relative z-20" />
-      </div>
+      <ScrollSyncPane>
+        <div
+          ref={scrollerRef}
+          className={`border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain ${
+            data === null ? "overflow-hidden" : "overflow-scroll"
+          }`}
+        >
+          {data === null && (
+            <>
+              <label htmlFor={inputId}>
+                <div className="w-full h-full flex items-center justify-center cursor-pointer">
+                  <NextImage
+                    src="/assets/icon-plus.svg"
+                    alt="add button"
+                    width="36"
+                    height="36"
+                  />
+                </div>
+              </label>
+              <input
+                id={inputId}
+                type="file"
+                name="merge-image"
+                accept="image/png,.xnb"
+                className="hidden"
+                onChange={onImageUpload}
+              />
+            </>
+          )}
+          <canvas
+            ref={guideRef}
+            className={`absolute z-0 ${showGuide ? "" : "hidden"}`}
+          />
+          <canvas ref={canvasRef} onClick={onClick} className="relative z-20" />
+        </div>
+      </ScrollSyncPane>
     </div>
   );
 };
