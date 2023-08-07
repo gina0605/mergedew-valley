@@ -127,10 +127,18 @@ export const Canvas = ({
         for (let i = y1; i <= y2; i++)
           for (let j = x1; j <= x2; j++) {
             const idx = i * data.width + j;
-            modifData[idx * 4] = data.data[idx * 4] / 2;
-            modifData[idx * 4 + 1] = data.data[idx * 4 + 1] / 2;
-            modifData[idx * 4 + 2] = data.data[idx * 4 + 2] / 2;
-            modifData[idx * 4 + 3] = 127 + data.data[idx * 4 + 3] / 2;
+            const a = data.data[idx * 4 + 3];
+            const a_new = Math.floor((a * 2) / 3) + 84;
+            modifData[idx * 4] = Math.floor(
+              (((data.data[idx * 4] * a) / a_new) * 2) / 3
+            );
+            modifData[idx * 4 + 1] = Math.floor(
+              (((data.data[idx * 4 + 1] * a) / a_new) * 2) / 3
+            );
+            modifData[idx * 4 + 2] = Math.floor(
+              (((data.data[idx * 4 + 2] * a) / a_new) * 2) / 3
+            );
+            modifData[idx * 4 + 3] = a_new;
           }
       }
       if (dotPos) mark(dotPos);
