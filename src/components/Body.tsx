@@ -20,6 +20,8 @@ export const Body = () => {
     null
   );
   const [warning, setWarning] = useState<string | null>(null);
+  const [autoSelect, setAutoSelect] = useState<number[] | null>(null);
+  const [autoFix, setAutoFix] = useState<number[] | null>(null);
 
   const getOriginalCurrentRange = () => {
     if (!originalData) return [0, 0, 0, 0];
@@ -70,6 +72,50 @@ export const Body = () => {
     return new ImageData(uintc8, x2 - x1, y2 - y1);
   };
 
+  const getDataRange = (data: ImageData, range: number[]) => {
+    const isFilled = (x: number, y: number) =>
+      data.data[(y * data.width + x) * 4 + 3] > 0;
+
+    const [x1, y1, x2, y2] = range;
+
+    let xmn = -1,
+      xmx = -1,
+      ymn = +1,
+      ymx = -1;
+    for (let y = y1; y <= y2 && xmn === -1; y++)
+      for (let x = x1; x <= x2; x++)
+        if (isFilled(x, y)) {
+          xmn = xmx = x;
+          ymn = ymx = y;
+          break;
+        }
+    if (xmn === -1) return null;
+
+    for (let y = y2; y > ymx; y--)
+      for (let x = x1; x <= x2; x++)
+        if (isFilled(x, y)) {
+          xmn = Math.min(xmn, x);
+          xmx = Math.max(xmx, x);
+          ymx = y;
+          break;
+        }
+
+    for (let x = x1; x < xmn; x++)
+      for (let y = ymn; y <= ymx; y++)
+        if (isFilled(x, y)) {
+          xmn = x;
+          break;
+        }
+    for (let x = x2; x > xmx; x--)
+      for (let y = ymn; y <= ymx; y++)
+        if (isFilled(x, y)) {
+          xmx = x;
+          break;
+        }
+
+    return [xmn, ymn, xmx, ymx];
+  };
+
   useEffect(() => {
     setOriginalCurrent(createOriginalCurrent());
   }, [mergeData, originalData, target, xOffset, yOffset, scale]);
@@ -88,6 +134,24 @@ export const Body = () => {
         );
     }
   }, [originalData, originalCurrent]);
+
+  useEffect(() => {
+    if (!mergeData) setAutoSelect(null);
+    else
+      setAutoSelect(
+        getDataRange(mergeData, [
+          0,
+          0,
+          mergeData.width - 1,
+          mergeData.height - 1,
+        ])
+      );
+  }, [mergeData]);
+
+  useEffect(() => {
+    if (!mergeData || !target) setAutoFix(null);
+    else setAutoFix(getDataRange(mergeData, target));
+  }, [mergeData, target]);
 
   const downloadFile = (href: string, filename: string) => {
     const a = document.createElement("a");
@@ -171,6 +235,27 @@ export const Body = () => {
         setYOffset={setYOffset}
         setScale={setScale}
       />
+      {target ? (
+        <Button
+          text="영역 자동 조정하기"
+          disabled={
+            !autoFix ||
+            (autoFix[0] === target[0] &&
+              autoFix[1] === target[1] &&
+              autoFix[2] === target[2] &&
+              autoFix[3] === target[3])
+          }
+          long
+          onClick={() => setTarget(autoFix)}
+        />
+      ) : (
+        <Button
+          text="영역 자동 선택하기"
+          long
+          disabled={!autoSelect}
+          onClick={() => setTarget(autoSelect)}
+        />
+      )}
       <div className="flex space-x-4">
         {target ? (
           <>
