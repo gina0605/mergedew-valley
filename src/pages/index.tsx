@@ -9,6 +9,7 @@ const Home = () => {
     <main className="w-full min-h-screen bg-white">
       <Head>
         <title>병합듀밸리</title>
+        <meta name="description" content="스타듀밸리 병합을 위한 올인원 툴" />
         <meta property="og:image" content={seoImg} />
         <meta name="twitter:title" content="병합듀밸리" />
         <meta name="twitter:card" content="summary_large_image" />
