@@ -36,9 +36,9 @@ export const Canvas = ({
   onDelete,
 }: CanvasProps) => {
   const inputId = useId();
+  const scrollerId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const guideRef = useRef<HTMLCanvasElement>(null);
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const [prevZoom, setPrevZoom] = useState(1);
   const [dotPos, setDotPos] = useState<number[] | null>(null);
   const [selectable, setSelectable] = useState(defaultSelectable);
@@ -64,7 +64,7 @@ export const Canvas = ({
   };
 
   const getCenter = () => {
-    const scroller = scrollerRef.current;
+    const scroller = document.getElementById(scrollerId);
     if (!scroller) return null;
     const xCenter = (scroller.scrollLeft + scroller.clientWidth / 2) / prevZoom;
     const yCenter = (scroller.scrollTop + scroller.clientHeight / 2) / prevZoom;
@@ -72,7 +72,7 @@ export const Canvas = ({
   };
 
   const zoomScroll = (centerCoord: number[] | null) => {
-    const scroller = scrollerRef.current;
+    const scroller = document.getElementById(scrollerId);
     if (!scroller || !centerCoord) return;
     const [xCenter, yCenter] = centerCoord;
     const xScroll = minmax(
@@ -165,7 +165,10 @@ export const Canvas = ({
   useEffect(() => setDotPos(null), [data, target, selectable]);
 
   useEffect(() => {
-    if (!data) scrollerRef.current?.scrollTo(0, 0);
+    if (!data) {
+      const scroller = document.getElementById(scrollerId);
+      if (scroller) scroller.scrollTo(0, 0);
+    }
   }, [data]);
 
   useEffect(() => {
@@ -270,7 +273,7 @@ export const Canvas = ({
       </div>
       <ScrollSyncPane>
         <div
-          ref={scrollerRef}
+          id={scrollerId}
           className="border-2 border-black w-full h-[90vw] md:h-[40vw] relative result-box overscroll-contain overflow-scroll"
         >
           {data === null && (
