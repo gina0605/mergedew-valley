@@ -232,9 +232,7 @@ export const Canvas = ({
     const file = e.target.files[0];
     try {
       const img = new Image();
-      img.src = URL.createObjectURL(
-        file.type === "image/png" ? file : await unpack(file)
-      );
+      img.src = URL.createObjectURL(file.type ? file : await unpack(file));
       img.addEventListener("load", () => {
         const ctx = drawImage(canvasRef.current as HTMLCanvasElement, img);
         onUpload(file.name, ctx.getImageData(0, 0, img.width, img.height));
@@ -292,7 +290,7 @@ export const Canvas = ({
                 id={inputId}
                 type="file"
                 name="merge-image"
-                accept="image/png,.xnb"
+                accept="image/*,.xnb"
                 className="hidden"
                 onChange={onImageUpload}
               />
