@@ -24,6 +24,13 @@ const Home = () => {
         >
           Github
         </a>
+        &nbsp;|&nbsp;
+        <a
+          href="https://cafe.naver.com/starvall/409858"
+          className="underline decoration-1"
+        >
+          네이버 카페
+        </a>
       </p>
     </main>
   );
